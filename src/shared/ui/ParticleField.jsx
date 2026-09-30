@@ -9,12 +9,12 @@ export function ParticleField({ paused = false }) {
     fpsLimit: 30,
     detectRetina: false,
     particles: {
-      number: { value: 34, density: { enable: true, area: 1250 } },
+      number: { value: 46, density: { enable: true, area: 1250 } },
       color: { value: ['#ff4f9a', '#ff92bf', '#b84b86'] },
-      links: { enable: true, color: '#f85b9e', distance: 135, opacity: 0.14, width: 0.6 },
+      links: { enable: true, color: '#f85b9e', distance: 140, opacity: 0.17, width: 0.65 },
       move: { enable: true, speed: 0.3, direction: 'none', outModes: { default: 'bounce' }, attract: { enable: false } },
-      opacity: { value: { min: 0.15, max: 0.55 } },
-      size: { value: { min: 1, max: 2.2 } },
+      opacity: { value: { min: 0.2, max: 0.65 } },
+      size: { value: { min: 1.1, max: 2.4 } },
     },
     interactivity: { detectsOn: 'window', events: { onHover: { enable: false }, resize: true } },
   }), [])

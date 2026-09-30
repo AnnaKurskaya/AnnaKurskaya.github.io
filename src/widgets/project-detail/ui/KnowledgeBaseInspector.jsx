@@ -30,7 +30,6 @@ export function KnowledgeBaseInspector({ id = 'knowledge-view' }) {
           <h2 id="knowledge-inspector-title">Содержимое базы знаний</h2>
           <p>Это реальные данные, которые будут использоваться механизмом вывода: факты уровня, стратегии, свойства и декларативные правила.</p>
         </div>
-        <span className={`knowledge-status ${validation.valid ? 'is-valid' : 'is-invalid'}`}>{validation.valid ? 'МОДЕЛЬ ВЕРНА' : 'ОШИБКА МОДЕЛИ'}</span>
       </div>
 
       <div className="knowledge-summary" aria-label="Состав базы знаний">
