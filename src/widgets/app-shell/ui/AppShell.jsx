@@ -6,13 +6,13 @@ const initParticles = async (engine) => {
   await loadSlim(engine)
 }
 
-export function PortfolioShell({ children }) {
+export function PortfolioShell({ children, particlesPaused = false }) {
   return (
     <ParticlesProvider init={initParticles}>
-      <div className="portfolio-shell">
+      <div className={`portfolio-shell ${particlesPaused ? 'is-modal-open' : ''}`}>
         <div className="ambient ambient-one" />
         <div className="ambient ambient-two" />
-        <ParticleField />
+        <ParticleField paused={particlesPaused} />
         <main className="portfolio-main">{children}</main>
       </div>
     </ParticlesProvider>

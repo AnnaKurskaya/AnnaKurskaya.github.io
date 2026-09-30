@@ -1,4 +1,9 @@
+import { useMemo, useState } from 'react'
 import { X } from 'lucide-react'
+import { createWorkingDatabase, getKnowledgeBase } from '../../../entities/expert-system/index.js'
+import { QuestionnairePanel } from '../../../features/expert-system-questionnaire/ui/QuestionnairePanel.jsx'
+import { KnowledgeBaseInspector } from './KnowledgeBaseInspector.jsx'
+import { WorkingDatabaseInspector } from './WorkingDatabaseInspector.jsx'
 
 const projectStats = [
   ['20+', 'вопросов пользователю'],
@@ -7,28 +12,19 @@ const projectStats = [
   ['11', 'атрибутов объектов'],
 ]
 
-const userParams = [
-  'опыт игрока', 'стиль прохождения', 'доступные бустеры', 'остаток ресурсов',
-  'готовность тратить бустеры', 'желание пройти уровень быстро', 'терпеливость',
-  'отношение к повторной попытке', 'сложность уровня', 'оставшиеся ходы',
-  'тип цели', 'доступность дополнительных ходов',
-]
-
-const strategies = [
-  'самолёт для удаления дальних целей', 'бомбы для группы препятствий', 'ракеты для очистки линий',
-  'комбинация бомба + ракета', 'комбинация бомба + самолёт', 'радужный шар',
-  'создание бустеров в начале уровня', 'сначала препятствия, затем цели', 'сначала цели уровня',
-  'экономное использование бустеров', 'использование всех доступных ресурсов', 'быстрое завершение уровня',
-  'осторожное прохождение', 'очистка центральной части поля', 'очистка краёв поля',
-  'открытие закрытых зон', 'создание длинных комбинаций', 'получение дополнительных ходов',
-  'повторная попытка с другой стратегией', 'комбинированная стратегия',
-]
+const knowledgeBase = getKnowledgeBase()
+const userParams = knowledgeBase.parameters.map(({ label }) => label)
+const strategies = knowledgeBase.strategies.map(({ title }) => title)
 
 function FlowArrow() {
   return <span className="flow-arrow" aria-hidden="true"><span /><span /><span /></span>
 }
 
 export function ProjectOneDetail({ onClose }) {
+  const workingDatabase = useMemo(() => createWorkingDatabase(), [])
+  const [session, setSession] = useState(() => workingDatabase.getSession())
+  const [isSystemStarted, setIsSystemStarted] = useState(false)
+
   return (
     <div className="project-modal" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <div className="project-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="project-one-title" onMouseDown={(event) => event.stopPropagation()}>
@@ -47,6 +43,13 @@ export function ProjectOneDetail({ onClose }) {
         {projectStats.map(([value, label]) => <div className="detail-stat" key={label}><strong>{value}</strong><span>{label}</span></div>)}
       </div>
 
+      {!isSystemStarted ? (
+        <section className="project-launch" aria-labelledby="project-launch-title">
+          <div><p className="detail-kicker">START / EXPERT SYSTEM</p><h2 id="project-launch-title">Готовы проверить стратегию?</h2><p>Запустите интерактивный сценарий: 20 ответов заполнят рабочую БД, после чего система рассчитает полный объяснимый рейтинг.</p></div>
+          <button className="questionnaire-primary project-launch-button" type="button" onClick={() => setIsSystemStarted(true)}>Запустить экспертную систему <span>→</span></button>
+        </section>
+      ) : <QuestionnairePanel workingDatabase={workingDatabase} session={session} onSessionChange={setSession} />}
+
       <div className="detail-section detail-architecture">
         <div className="section-heading"><p className="detail-kicker">01 / ARCHITECTURE</p><h2>Как работает система</h2><p>Каждый ответ превращается в данные, данные — в оценку, а оценка — в понятный список рекомендаций.</p></div>
         <div className="flow-diagram" aria-label="Схема работы экспертной системы">
@@ -62,10 +65,15 @@ export function ProjectOneDetail({ onClose }) {
         <article className="detail-panel"><p className="detail-kicker">03 / KNOWLEDGE BASE</p><h3>База знаний</h3><p>В ней хранятся объекты ранжирования, их свойства и экспертные правила предметной области.</p><div className="knowledge-graph" aria-label="Связи в базе знаний"><div className="graph-node graph-node-main">Уровень</div><div className="graph-link graph-link-one" /><div className="graph-link graph-link-two" /><div className="graph-node graph-node-small graph-node-top">Цели</div><div className="graph-node graph-node-small graph-node-bottom">Препятствия</div><div className="graph-node graph-node-small graph-node-right">Стратегии</div></div></article>
       </div>
 
+      <KnowledgeBaseInspector />
+      <WorkingDatabaseInspector workingDatabase={workingDatabase} session={session} onSessionChange={setSession} />
+
       <div className="detail-section ranking-section">
         <div className="section-heading"><p className="detail-kicker">04 / INFERENCE</p><h2>Ранжирование кандидатов</h2><p>Для каждого объекта вычисляется совместимость с профилем: совпадения усиливают оценку, противопоказания уменьшают её.</p></div>
         <div className="formula-card"><span className="formula-label">Итоговая оценка</span><strong>Score(strategy) = Σ&nbsp; weightᵢ × matchᵢ − penalty</strong><span className="formula-note">где matchᵢ — степень соответствия параметру, а weightᵢ — его важность</span></div>
-        <div className="ranking-list">{['Комбинированная стратегия', 'Бомба + ракета', 'Очистка препятствий', 'Экономное использование бустеров'].map((name, index) => <div className="ranking-row" key={name}><span className="ranking-place">0{index + 1}</span><span className="ranking-name">{name}</span><span className="ranking-bar"><i style={{ '--score': `${94 - index * 13}%` }} /></span><strong>{94 - index * 13}</strong></div>)}</div>
+        {session.finalRanking.length ? (
+          <div className="ranking-list" aria-label="Рассчитанный рейтинг стратегий">{session.finalRanking.slice(0, 5).map((item) => <div className="ranking-row" key={item.strategyId}><span className="ranking-place">{String(item.rank).padStart(2, '0')}</span><span className="ranking-name" title={item.title}>{item.title}</span><span className="ranking-bar"><i style={{ '--score': `${item.score}%` }} /></span><strong>{item.score.toFixed(2)}</strong></div>)}</div>
+        ) : <div className="ranking-empty">Заполните профиль и подтвердите ответы — здесь появится рейтинг, рассчитанный механизмом вывода.</div>}
       </div>
 
       <div className="detail-section strategy-section">
