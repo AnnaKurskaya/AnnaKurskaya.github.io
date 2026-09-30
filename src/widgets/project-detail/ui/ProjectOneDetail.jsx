@@ -1,3 +1,5 @@
+import { X } from 'lucide-react'
+
 const projectStats = [
   ['20+', 'вопросов пользователю'],
   ['12', 'параметров профиля'],
@@ -26,9 +28,12 @@ function FlowArrow() {
   return <span className="flow-arrow" aria-hidden="true"><span /><span /><span /></span>
 }
 
-export function ProjectOneDetail() {
+export function ProjectOneDetail({ onClose }) {
   return (
-    <section className="project-detail" id="project-1" aria-labelledby="project-one-title">
+    <div className="project-modal" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <div className="project-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="project-one-title" onMouseDown={(event) => event.stopPropagation()}>
+        <button className="project-modal-close" type="button" onClick={onClose} aria-label="Закрыть описание проекта"><X size={20} /></button>
+        <section className="project-detail" id="project-1">
       <div className="detail-heading">
         <div>
           <p className="detail-kicker">PROJECT 01 · ОИС</p>
@@ -72,6 +77,8 @@ export function ProjectOneDetail() {
         <article className="detail-panel detail-panel-wide"><p className="detail-kicker">06 / IMPLEMENTATION PLAN</p><h3>План реализации</h3><div className="timeline">{['Описать предметную область Homescapes', 'Сформировать автономную базу знаний', 'Собрать интерфейс вопросов и результатов', 'Реализовать правила и взвешенное ранжирование', 'Проверить сценарии и объяснимость ответа'].map((step, index) => <div className="timeline-item" key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></div>)}</div></article>
         <article className="detail-panel detail-panel-note"><p className="detail-kicker">PROJECT NOTE</p><h3>Почему это экспертная система</h3><p>Решение опирается на формализованные знания эксперта, учитывает неполный профиль пользователя и показывает, почему стратегия оказалась выше в рейтинге.</p><a href="#project-1" className="back-to-project">К началу проекта <span>↗</span></a></article>
       </div>
-    </section>
+        </section>
+      </div>
+    </div>
   )
 }

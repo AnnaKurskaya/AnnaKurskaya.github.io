@@ -4,6 +4,7 @@ import { ProjectOneDetail } from '../../../widgets/project-detail/ui/ProjectOneD
 
 export function HomePage({ projects }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [isProjectOneOpen, setIsProjectOneOpen] = useState(false)
   const carouselItems = useMemo(() => [...projects, ...projects, ...projects], [projects])
   const centerIndex = projects.length + activeIndex
 
@@ -19,6 +20,20 @@ export function HomePage({ projects }) {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [activeIndex, goTo])
+
+  useEffect(() => {
+    if (!isProjectOneOpen) return undefined
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setIsProjectOneOpen(false)
+    }
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isProjectOneOpen])
 
   return (
     <div className="catalog-page">
@@ -43,9 +58,7 @@ export function HomePage({ projects }) {
                 onClick={() => {
                   if (!isVisible) return
                   goTo(projects.indexOf(project))
-                  if (project.index === '01') {
-                    window.setTimeout(() => document.getElementById('project-1')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
-                  }
+                  if (project.index === '01') setIsProjectOneOpen(true)
                 }}
                 aria-label={`${project.title}, проект ${project.index}`}
                 aria-current={isActive ? 'true' : undefined}
@@ -71,7 +84,7 @@ export function HomePage({ projects }) {
         </div>
       </section>
 
-      <ProjectOneDetail />
+      {isProjectOneOpen && <ProjectOneDetail onClose={() => setIsProjectOneOpen(false)} />}
     </div>
   )
 }
