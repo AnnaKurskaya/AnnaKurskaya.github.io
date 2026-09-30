@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { createWorkingDatabase, getMissingLevelFacts, getMissingParameters, userParameters } from '../../../entities/expert-system/index.js'
 
-export function WorkingDatabaseInspector({ workingDatabase, session, onSessionChange }) {
+const statusLabels = { idle: 'ДАННЫЕ НЕ СОБРАНЫ', collecting: 'СБОР ДАННЫХ', analyzing: 'АНАЛИЗ', ranked: 'РАСЧЁТ ЗАВЕРШЁН' }
+
+export function WorkingDatabaseInspector({ id = 'working-db-view', workingDatabase, session, onSessionChange }) {
   const fallbackStore = useMemo(() => createWorkingDatabase(), [])
   const store = workingDatabase ?? fallbackStore
   const missingParameters = getMissingParameters(session)
@@ -10,10 +12,10 @@ export function WorkingDatabaseInspector({ workingDatabase, session, onSessionCh
   const levelFactCount = Object.keys(session.levelFacts).length
 
   return (
-    <section className="working-db-inspector" aria-labelledby="working-db-title">
+    <section className="working-db-inspector" id={id} aria-labelledby="working-db-title">
       <div className="working-db-heading">
         <div>
-          <p className="detail-kicker">08 / WORKING DATABASE</p>
+          <p className="detail-kicker">04 / РАБОЧАЯ БАЗА ДАННЫХ</p>
           <h2 id="working-db-title">Рабочая база текущей сессии</h2>
           <p>Здесь хранятся ответы пользователя, характеристики уровня, промежуточный анализ и итоговый рейтинг механизма вывода.</p>
         </div>
@@ -27,7 +29,7 @@ export function WorkingDatabaseInspector({ workingDatabase, session, onSessionCh
         <div><strong>{session.finalRanking.length}</strong><span>объектов рейтинга</span></div>
       </div>
 
-      <div className="working-db-state"><span className={`knowledge-status ${session.status === 'ranked' ? 'is-valid' : ''}`}>{session.status === 'idle' ? 'ДАННЫЕ НЕ СОБРАНЫ' : session.status.toUpperCase()}</span><span>{missingParameters.length + missingLevelFacts.length ? `Ожидается ещё ${missingParameters.length + missingLevelFacts.length} полей` : session.status === 'ranked' ? 'Расчёт завершён' : 'Готово к расчёту'}</span></div>
+      <div className="working-db-state"><span className={`knowledge-status ${session.status === 'ranked' ? 'is-valid' : ''}`}>{statusLabels[session.status] ?? statusLabels.idle}</span><span>{missingParameters.length + missingLevelFacts.length ? `Ожидается ещё ${missingParameters.length + missingLevelFacts.length} полей` : session.status === 'ranked' ? 'Расчёт завершён' : 'Готово к расчёту'}</span></div>
 
       <div className="working-db-panels">
         <details className="working-db-json"><summary>Ответы пользователя ({answerCount})</summary><pre>{JSON.stringify(session.answers, null, 2)}</pre></details>

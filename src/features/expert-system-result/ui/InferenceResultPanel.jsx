@@ -70,7 +70,7 @@ export function InferenceResultPanel({ result, questions, onEdit, onRestart }) {
     <div className="inference-result" aria-live="polite">
       <div className="result-hero">
         <div>
-          <p className="detail-kicker">RESULT / RECOMMENDATION</p>
+          <p className="detail-kicker">РЕЗУЛЬТАТ / РЕКОМЕНДАЦИЯ</p>
           <h3>{bestStrategy.title}</h3>
           <p>Лучшая стратегия по текущему профилю и характеристикам уровня.</p>
           <ul className="result-hero-reasons">{bestStrategy.explanation.map((reason) => <li key={reason}>{reason}</li>)}</ul>
@@ -81,12 +81,12 @@ export function InferenceResultPanel({ result, questions, onEdit, onRestart }) {
       <div className="result-meta"><span>Активных правил: <b>{result.activeRules.length}</b></span><span>Стратегий в рейтинге: <b>{result.ranking.length}</b></span><span>Расчёт: <b>детерминированный</b></span></div>
 
       <section className="result-section" aria-labelledby="full-ranking-title">
-        <div className="result-section-heading"><div><p className="detail-kicker">FULL RANKING</p><h4 id="full-ranking-title">Все стратегии</h4></div><span>Нажмите на строку, чтобы раскрыть детали</span></div>
+        <div className="result-section-heading"><div><p className="detail-kicker">ПОЛНЫЙ РЕЙТИНГ</p><h4 id="full-ranking-title">Все стратегии</h4></div><span>Нажмите на строку, чтобы раскрыть детали</span></div>
         <div className="result-strategy-list">{result.ranking.map((item) => <StrategyDetails item={item} key={item.strategyId} />)}</div>
       </section>
 
       <section className="result-section" aria-labelledby="answers-title">
-        <div className="result-section-heading"><div><p className="detail-kicker">INPUT SNAPSHOT</p><h4 id="answers-title">Исходные ответы</h4></div><span>Данные, на которых построен рейтинг</span></div>
+        <div className="result-section-heading"><div><p className="detail-kicker">ИСХОДНЫЕ ДАННЫЕ</p><h4 id="answers-title">Исходные ответы</h4></div><span>Данные, на которых построен рейтинг</span></div>
         <AnswerList result={{ ...result, questions }} />
       </section>
 

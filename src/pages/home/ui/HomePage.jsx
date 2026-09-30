@@ -83,24 +83,24 @@ export function HomePage({ projects, onProjectModalChange }) {
                   aria-current={isActive ? 'true' : undefined}
                 >
                   <span className="card-glow" />
-                  <span className="card-topline"><span>PROJECT</span><span>{project.index}</span></span>
+                  <span className="card-topline"><span>ПРОЕКТ</span><span>{project.index}</span></span>
                   <span className="card-number">{project.index}</span>
                   <span className="card-title">{project.title}</span>
                   <span className="card-description">{project.description}</span>
-                  <span className="card-bottomline"><span>STAY TUNED</span><span className="card-corner-mark" /></span>
+                  <span className="card-bottomline"><span>СКОРО</span><span className="card-corner-mark" /></span>
                 </button>
               )
             })}
           </div>
         </div>
 
-        <div className="carousel-controls">
+        {projects.length > 1 && <div className="carousel-controls">
           <button className="carousel-arrow" type="button" onClick={() => goTo(activeIndex - 1)} aria-label="Предыдущий проект"><ArrowLeft size={18} /></button>
           <div className="carousel-progress" aria-label={`Проект ${activeIndex + 1} из ${projects.length}`}>
             {projects.map((project, index) => <button className={`progress-dot ${index === activeIndex ? 'is-active' : ''}`} key={project.id} type="button" onClick={() => goTo(index)} aria-label={`Открыть проект ${project.index}`} />)}
           </div>
           <button className="carousel-arrow" type="button" onClick={() => goTo(activeIndex + 1)} aria-label="Следующий проект"><ArrowRight size={18} /></button>
-        </div>
+        </div>}
       </section>
 
       {isProjectOneOpen && <ProjectOneDetail onClose={() => setIsProjectOneOpen(false)} />}

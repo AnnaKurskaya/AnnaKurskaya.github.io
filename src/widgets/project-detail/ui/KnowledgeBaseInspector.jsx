@@ -9,25 +9,28 @@ const sections = [
   ['attributes', 'Свойства', 'attributes'],
 ]
 
+const inputLabels = { 'single-choice': 'один вариант', number: 'число', scale: 'шкала', boolean: 'да / нет' }
 const formatValue = (value) => typeof value === 'boolean' ? (value ? 'да' : 'нет') : String(value)
-const formatDescriptor = (item) => item.values ? item.values.map(({ id, label }) => `${label} (${id})`).join(' · ') : `${item.range.min}…${item.range.max} ${item.range.unit ?? ''}`
-const formatCondition = ({ fact, operator, value }) => `${fact} ${operator} ${Array.isArray(value) ? value.join(', ') : formatValue(value)}`
+const formatDescriptor = (item) => item.values ? item.values.map(({ label }) => label).join(' · ') : `${item.range.min}…${item.range.max} ${item.range.unit ?? ''}`
+const formatCondition = ({ label, fact, operator, value }) => label ?? `${fact} ${operator} ${Array.isArray(value) ? value.join(', ') : formatValue(value)}`
 
-export function KnowledgeBaseInspector() {
+export function KnowledgeBaseInspector({ id = 'knowledge-view' }) {
   const [activeSection, setActiveSection] = useState('rules')
   const knowledgeBase = getKnowledgeBase()
   const validation = validateKnowledgeBase()
   const items = knowledgeBase[activeSection]
+  const strategyTitles = Object.fromEntries(knowledgeBase.strategies.map(({ id, title }) => [id, title]))
+  const attributeLabels = Object.fromEntries(knowledgeBase.attributes.map(({ id, label }) => [id, label]))
 
   return (
-    <section className="knowledge-inspector" aria-labelledby="knowledge-inspector-title">
+    <section className="knowledge-inspector" id={id} aria-labelledby="knowledge-inspector-title">
       <div className="knowledge-inspector-heading">
         <div>
-          <p className="detail-kicker">07 / KNOWLEDGE VIEW</p>
+          <p className="detail-kicker">03 / БАЗА ЗНАНИЙ</p>
           <h2 id="knowledge-inspector-title">Содержимое базы знаний</h2>
           <p>Это реальные данные, которые будут использоваться механизмом вывода: факты уровня, стратегии, свойства и декларативные правила.</p>
         </div>
-        <span className={`knowledge-status ${validation.valid ? 'is-valid' : 'is-invalid'}`}>{validation.valid ? 'MODEL VALID' : 'MODEL ERROR'}</span>
+        <span className={`knowledge-status ${validation.valid ? 'is-valid' : 'is-invalid'}`}>{validation.valid ? 'МОДЕЛЬ ВЕРНА' : 'ОШИБКА МОДЕЛИ'}</span>
       </div>
 
       <div className="knowledge-summary" aria-label="Состав базы знаний">
@@ -42,11 +45,11 @@ export function KnowledgeBaseInspector() {
       </div>
 
       <div className="knowledge-items" role="tabpanel">
-        {activeSection === 'rules' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>{item.id}</span><b>{Math.round(item.priority * 100)}%</b></div><h3>{item.title}</h3><p>{item.description}</p><div className="knowledge-rule-meta"><span>{item.conditions.length} условия</span><span>{item.effects.length} эффекта</span></div><ul className="knowledge-rule-list">{item.conditions.map((condition) => <li key={`${item.id}-${condition.fact}`}>ЕСЛИ {formatCondition(condition)}</li>)}{item.effects.map((effect) => <li key={`${item.id}-${effect.strategyId}`} className={effect.type === 'penalty' ? 'is-penalty' : 'is-bonus'}>{effect.type === 'penalty' ? 'ШТРАФ' : 'БОНУС'} {effect.strategyId}: {effect.reason}</li>)}</ul></article>)}
-        {activeSection === 'parameters' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>{item.input}</span><b>{item.id}</b></div><h3>{item.label}</h3><p>{item.description}</p><small>{item.influence}</small><div className="knowledge-values">Допустимые значения: {formatDescriptor(item)}</div></article>)}
-        {activeSection === 'levelFacts' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>{item.type}</span><b>{item.id}</b></div><h3>{item.label}</h3><div className="knowledge-values">Допустимые значения: {formatDescriptor(item)}</div></article>)}
-        {activeSection === 'strategies' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>{item.id}</span><b>{Math.round(item.attributes.successProbability * 100)}% success</b></div><h3>{item.title}</h3><p>{item.description}</p><small>{item.recommendedWhen}</small><div className="knowledge-attribute-grid">{Object.entries(item.attributes).map(([attribute, value]) => <span key={attribute}><b>{attribute}</b><em>{Math.round(value * 100)}%</em></span>)}</div></article>)}
-        {activeSection === 'attributes' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>0..1</span><b>{item.id}</b></div><h3>{item.label}</h3><p>{item.description}</p></article>)}
+        {activeSection === 'rules' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>Правило</span><b>Приоритет {Math.round(item.priority * 100)}%</b></div><h3>{item.title}</h3><p>{item.description}</p><div className="knowledge-rule-meta"><span>{item.conditions.length} условия</span><span>{item.effects.length} эффекта</span></div><ul className="knowledge-rule-list">{item.conditions.map((condition) => <li key={`${item.id}-${condition.fact}`}>ЕСЛИ {formatCondition(condition)}</li>)}{item.effects.map((effect) => <li key={`${item.id}-${effect.strategyId}`} className={effect.type === 'penalty' ? 'is-penalty' : 'is-bonus'}>{effect.type === 'penalty' ? 'ШТРАФ' : 'БОНУС'}: {strategyTitles[effect.strategyId] ?? 'стратегия'} — {effect.reason}</li>)}</ul></article>)}
+        {activeSection === 'parameters' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>{inputLabels[item.input] ?? item.input}</span><b>Параметр</b></div><h3>{item.label}</h3><p>{item.description}</p><small>{item.influence}</small><div className="knowledge-values">Допустимые значения: {formatDescriptor(item)}</div></article>)}
+        {activeSection === 'levelFacts' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>{inputLabels[item.type] ?? item.type}</span><b>Факт уровня</b></div><h3>{item.label}</h3><div className="knowledge-values">Допустимые значения: {formatDescriptor(item)}</div></article>)}
+        {activeSection === 'strategies' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>Стратегия</span><b>Успех {Math.round(item.attributes.successProbability * 100)}%</b></div><h3>{item.title}</h3><p>{item.description}</p><small>{item.recommendedWhen}</small><div className="knowledge-attribute-grid">{Object.entries(item.attributes).map(([attribute, value]) => <span key={attribute}><b>{attributeLabels[attribute] ?? 'Свойство'}</b><em>{Math.round(value * 100)}%</em></span>)}</div></article>)}
+        {activeSection === 'attributes' && items.map((item) => <article className="knowledge-item" key={item.id}><div className="knowledge-item-topline"><span>Шкала 0–1</span><b>Свойство стратегии</b></div><h3>{item.label}</h3><p>{item.description}</p></article>)}
       </div>
     </section>
   )

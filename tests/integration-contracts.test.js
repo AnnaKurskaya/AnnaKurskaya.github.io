@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
+import { projects } from '../src/entities/project/model/projects.js'
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
 
@@ -11,6 +12,11 @@ test('карточка проекта запускает SPA-сценарий б
   assert.match(source, /<QuestionnairePanel/)
   assert.match(source, /session\.finalRanking/)
   assert.doesNotMatch(source, /94 - index \* 13/)
+})
+
+test('каталог содержит только первый проект', () => {
+  assert.equal(projects.length, 1)
+  assert.equal(projects[0].index, '01')
 })
 
 test('опрос содержит клавиатурную навигацию, а результат — действия редактирования и сброса', () => {

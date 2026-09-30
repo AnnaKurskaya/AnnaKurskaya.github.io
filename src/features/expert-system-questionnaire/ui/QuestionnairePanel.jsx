@@ -114,7 +114,7 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
     <section className="questionnaire-panel" aria-labelledby="questionnaire-title">
       <div className="questionnaire-heading">
         <div>
-          <p className="detail-kicker">09 / INTERACTIVE INPUT</p>
+          <p className="detail-kicker">02 / ВОПРОСЫ</p>
           <h2 id="questionnaire-title">Профиль уровня</h2>
           <p>Ответьте на вопросы, чтобы заполнить рабочую базу данных. После подтверждения система применит правила и рассчитает рейтинг всех стратегий.</p>
         </div>
@@ -126,7 +126,7 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
       {isConfirmationStep ? (
         <div className="questionnaire-confirmation">
           <span className="confirmation-mark">✓</span>
-          <p className="detail-kicker">FINAL CHECK</p>
+          <p className="detail-kicker">ПРОВЕРКА ОТВЕТОВ</p>
           <h3>Данные готовы к анализу</h3>
           <p>Все 20 ответов сохранены в рабочей базе. Проверьте профиль или запустите механизм вывода, чтобы получить детерминированный рейтинг.</p>
           {error && <p className="questionnaire-error" role="alert">{error}</p>}
@@ -136,7 +136,7 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
         <div className="questionnaire-question" key={currentQuestion.id}>
           <div className="questionnaire-question-meta"><span>Вопрос {String(currentIndex + 1).padStart(2, '0')} / {String(questionnaire.length).padStart(2, '0')}</span><span>{currentQuestion.section}</span></div>
           <h3>{currentQuestion.prompt}</h3>
-          <p className="questionnaire-why"><span>WHY</span>{currentQuestion.why}</p>
+          <p className="questionnaire-why"><span>ЗАЧЕМ</span>{currentQuestion.why}</p>
           <div className="questionnaire-options" role="radiogroup" aria-label={currentQuestion.prompt}>
             {currentQuestion.options.map((option) => {
               const isSelected = Object.is(selectedValue, option.value)
