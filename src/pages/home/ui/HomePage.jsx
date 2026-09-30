@@ -26,11 +26,14 @@ export function HomePage({ projects }) {
     const onKeyDown = (event) => {
       if (event.key === 'Escape') setIsProjectOneOpen(false)
     }
-    const previousOverflow = document.body.style.overflow
+    const previousBodyOverflow = document.body.style.overflow
+    const previousDocumentOverflow = document.documentElement.style.overflow
     document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
     window.addEventListener('keydown', onKeyDown)
     return () => {
-      document.body.style.overflow = previousOverflow
+      document.body.style.overflow = previousBodyOverflow
+      document.documentElement.style.overflow = previousDocumentOverflow
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [isProjectOneOpen])
