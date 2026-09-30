@@ -87,7 +87,7 @@ export function HomePage({ projects, onProjectModalChange }) {
                   <span className="card-number">{project.index}</span>
                   <span className="card-title">{project.title}</span>
                   <span className="card-description">{project.description}</span>
-                  <span className="card-bottomline"><span>СКОРО</span><span className="card-corner-mark" /></span>
+                  <span className="card-bottomline"><span className="card-corner-mark" /></span>
                 </button>
               )
             })}
