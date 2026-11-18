@@ -11,7 +11,12 @@ const sections = [
 
 const inputLabels = { 'single-choice': 'один вариант', number: 'число', scale: 'шкала', boolean: 'да / нет' }
 const formatValue = (value) => typeof value === 'boolean' ? (value ? 'да' : 'нет') : String(value)
-const formatDescriptor = (item) => item.values ? item.values.map(({ label }) => label).join(' · ') : `${item.range.min}…${item.range.max} ${item.range.unit ?? ''}`
+const formatDescriptor = (item) => {
+  if (item.values) return item.values.map(({ label }) => label).join(' · ')
+  if (item.range) return `${item.range.min}…${item.range.max} ${item.range.unit ?? ''}`.trim()
+  if (item.type === 'boolean') return 'Да / нет'
+  return 'Значение не ограничено'
+}
 const formatCondition = ({ label, fact, operator, value }) => label ?? `${fact} ${operator} ${Array.isArray(value) ? value.join(', ') : formatValue(value)}`
 
 export function KnowledgeBaseInspector({ id = 'knowledge-view' }) {
