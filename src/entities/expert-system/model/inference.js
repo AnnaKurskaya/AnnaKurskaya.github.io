@@ -77,7 +77,7 @@ function getBaseContributions(strategy, session, normalized) {
     ['Доступные бустеры', similarity(normalized.answers.availableBoosters, attributes.boosterNecessity), 0.07],
     ['Сохранение ресурсов', reserveMatch, 0.1],
     ['Готовность использовать бустеры', readinessMatch, 0.07],
-    ['Готовность к повторной попытке', strategy.id === 'replay-another-strategy' ? 1 : attributes.universality, 0.05],
+    ['Готовность к повторной попытке', strategy.id === 'replay-another-strategy' ? normalized.answers.replayTolerance : attributes.universality, 0.05],
     ['Приоритет скорости', similarity(normalized.answers.speedPreference, attributes.speed), 0.1],
     ['Терпеливость и сложность плана', similarity(normalized.answers.patience, attributes.applicationComplexity), 0.08],
     ['Дополнительные ходы', extraMovesMatch, 0.05],
@@ -94,8 +94,11 @@ function getBaseContributions(strategy, session, normalized) {
     ['Свободное пространство', similarity(normalized.levelFacts.boardSpace, attributes.applicationComplexity), 0.05],
   ]
 
-  const totalWeight = contributions.reduce((sum, [, , weight]) => sum + weight, 0)
-  return contributions.map(([label, match, weight]) => ({ label, match: clamp(match), weight, points: (clamp(match) * weight / totalWeight) * 100 }))
+  const factorIds = ['playerExperience', 'playStyle', 'availableBoosters', 'resourceReserve', 'boosterReadiness', 'replayTolerance', 'speedPreference', 'patience', 'extraMovesAvailable', 'levelDifficulty', 'remainingMoves', 'goalType', 'obstacleDensity', 'closedZoneRatio', 'targetCount', 'hasLineTargets', 'hasGroupedObstacles', 'hasFrozenTiles', 'goalDistribution', 'boardSpace']
+  // Unknown answers have no weight. In particular, undefined is not false or zero.
+  const known = contributions.filter((_, index) => getRawFact(session, factorIds[index]) !== undefined)
+  const totalWeight = known.reduce((sum, [, , weight]) => sum + weight, 0)
+  return known.map(([label, match, weight]) => ({ label, match: clamp(match), weight, points: (clamp(match) * weight / totalWeight) * 100 }))
 }
 
 function getRawFact(session, factId) {
@@ -112,6 +115,7 @@ function getComparableFact(session, normalized, factId, operator) {
 function conditionMatches(session, normalized, currentCondition) {
   const { fact, operator, value } = currentCondition
   const currentValue = getComparableFact(session, normalized, fact, operator)
+  if (currentValue === undefined) return false
   if (operator === 'eq') return currentValue === value
   if (operator === 'in') return Array.isArray(value) && value.includes(currentValue)
   if (operator === 'gte') return currentValue >= value
@@ -131,8 +135,9 @@ function applyRuleEffects(strategy, activeRules) {
   for (const currentRule of activeRules) {
     for (const currentEffect of currentRule.effects.filter(({ strategyId }) => strategyId === strategy.id)) {
       const signedValue = currentEffect.type === 'penalty' ? -currentEffect.value : currentEffect.value
-      adjustment += signedValue * currentRule.priority * 100
-      matchedRules.push({ ruleId: currentRule.id, title: currentRule.title, type: currentEffect.type, value: signedValue, reason: currentEffect.reason })
+      const points = signedValue * currentRule.priority * 100
+      adjustment += points
+      matchedRules.push({ ruleId: currentRule.id, title: currentRule.title, type: currentEffect.type, value: signedValue, points, reason: currentEffect.reason })
     }
   }
   return { adjustment, matchedRules }
@@ -144,19 +149,35 @@ export function sortRanking(items) {
     .map((item, index) => ({ ...item, rank: index + 1 }))
 }
 
-export function runInference(session) {
-  if (!isReadyForInference(session)) {
+// A common theoretical range preserves differences between all candidates.
+// Per-rule extrema include all effects on a strategy, including mixed signs.
+function getScoreBounds(activeRules) {
+  let lower = 0
+  let upper = 100
+  for (const currentRule of activeRules) {
+    const effects = strategies.map(({ id }) => currentRule.effects
+      .filter(({ strategyId }) => strategyId === id)
+      .reduce((sum, effect) => sum + (effect.type === 'penalty' ? -effect.value : effect.value) * currentRule.priority * 100, 0))
+    lower += Math.min(0, ...effects)
+    upper += Math.max(0, ...effects)
+  }
+  return { lower, upper }
+}
+
+function infer(session, partial) {
+  if (!partial && !isReadyForInference(session)) {
     const missing = [...getMissingParameters(session), ...getMissingLevelFacts(session)]
     throw new SessionValidationError('Нельзя запустить механизм вывода: рабочая БД заполнена не полностью.', missing)
   }
 
   const normalized = normalizeSession(session)
   const activeRules = evaluateRules(session, normalized)
+  const scoreBounds = getScoreBounds(activeRules)
   const evaluated = strategies.map((strategy) => {
     const contributions = getBaseContributions(strategy, session, normalized)
-    const baseScore = contributions.reduce((sum, contribution) => sum + contribution.points, 0)
+    const baseScore = contributions.length ? contributions.reduce((sum, contribution) => sum + contribution.points, 0) : 50
     const { adjustment, matchedRules } = applyRuleEffects(strategy, activeRules)
-    const score = clamp((baseScore + adjustment) / 100, 0, 1) * 100
+    const score = 100 * (baseScore + adjustment - scoreBounds.lower) / (scoreBounds.upper - scoreBounds.lower)
     const strongestSignals = [...contributions].sort((left, right) => right.points - left.points).slice(0, 3)
     const explanation = [
       ...strongestSignals.map(({ label }) => label),
@@ -175,12 +196,14 @@ export function runInference(session) {
   })
 
   const ranking = sortRanking(evaluated)
-  const intermediateResults = ranking.map(({ strategyId, baseScore, ruleAdjustment, matchedRules, contributions }) => ({ strategyId, baseScore, ruleAdjustment, matchedRules, contributions }))
-  let nextSession = saveIntermediateResults(session, intermediateResults)
-  nextSession = saveRanking(nextSession, ranking)
+  let nextSession = saveIntermediateResults(session, ranking)
+  if (!partial) nextSession = saveRanking(nextSession, ranking)
 
-  return Object.freeze({ session: nextSession, ranking, activeRules, normalized })
+  return Object.freeze({ session: nextSession, ranking, activeRules, normalized, scoreBounds })
 }
+
+export const runInference = (session) => infer(session, false)
+export const runPartialInference = (session) => infer(session, true)
 
 export function calculateBaseScore(strategy, session) {
   if (!isReadyForInference(session)) throw new SessionValidationError('Для расчёта базовой оценки нужно заполнить рабочую БД.')

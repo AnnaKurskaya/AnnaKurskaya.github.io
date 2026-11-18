@@ -47,7 +47,7 @@ export function ProjectOneDetail({ onClose }) {
 
       {!isSystemStarted ? (
         <section className="project-launch" id="project-launch" aria-labelledby="project-launch-title">
-          <div><p className="detail-kicker">01 / ЗАПУСК СИСТЕМЫ</p><h2 id="project-launch-title">Готовы проверить стратегию?</h2><p>Запустите интерактивный сценарий: 20 ответов заполнят рабочую БД, после чего система рассчитает полный объяснимый рейтинг.</p></div>
+          <div><p className="detail-kicker">01 / ЗАПУСК СИСТЕМЫ</p><h2 id="project-launch-title">Готовы проверить стратегию?</h2><p>Ответьте на 20 вопросов: после каждого ответа появится топ-5, а в конце — полный объяснимый рейтинг.</p></div>
           <button className="questionnaire-primary project-launch-button" type="button" onClick={() => setIsSystemStarted(true)}>Запустить экспертную систему <span>→</span></button>
         </section>
       ) : <QuestionnairePanel workingDatabase={workingDatabase} session={session} onSessionChange={setSession} />}
@@ -57,7 +57,7 @@ export function ProjectOneDetail({ onClose }) {
 
       <div className="detail-section ranking-section" id="ranking-view">
         <div className="section-heading"><p className="detail-kicker">05 / РАНЖИРОВАНИЕ</p><h2>Ранжирование кандидатов</h2><p>Для каждого объекта вычисляется совместимость с профилем: совпадения усиливают оценку, противопоказания уменьшают её.</p></div>
-        <div className="formula-card"><span className="formula-label">Итоговая оценка</span><strong>Оценка стратегии = Σ&nbsp; весᵢ × совпадениеᵢ − штраф</strong><span className="formula-note">где совпадениеᵢ — степень соответствия параметру, а весᵢ — его важность</span></div>
+        <div className="formula-card"><span className="formula-label">Итоговая оценка</span><strong>100 × (базовый балл + вклад правил − L) / (U − L)</strong><span className="formula-note">Базовый балл — взвешенное совпадение известных параметров. L и U — общие теоретические границы с учётом активных бонусов и штрафов.</span></div>
         {session.finalRanking.length ? (
           <div className="ranking-list" aria-label="Рассчитанный рейтинг стратегий">{session.finalRanking.slice(0, 5).map((item) => <div className="ranking-row" key={item.strategyId}><span className="ranking-place">{String(item.rank).padStart(2, '0')}</span><span className="ranking-name" title={item.title}>{item.title}</span><span className="ranking-bar"><i style={{ '--score': `${item.score}%` }} /></span><strong>{item.score.toFixed(2)}</strong></div>)}</div>
         ) : <div className="ranking-empty">Заполните профиль и подтвердите ответы — здесь появится рейтинг, рассчитанный механизмом вывода.</div>}

@@ -76,6 +76,7 @@ export function setAnswer(session, parameterId, value) {
     ...session,
     status: 'collecting',
     answers: { ...session.answers, [parameterId]: value },
+    intermediateResults: [],
     finalRanking: [],
     lastUpdatedAt: timestamp(),
   }
@@ -89,6 +90,7 @@ export function setLevelFact(session, factId, value) {
     ...session,
     status: 'collecting',
     levelFacts: { ...session.levelFacts, [factId]: value },
+    intermediateResults: [],
     finalRanking: [],
     lastUpdatedAt: timestamp(),
   }
@@ -98,7 +100,7 @@ export function saveIntermediateResults(session, results) {
   if (!Array.isArray(results)) throw new SessionValidationError('Промежуточные результаты должны быть массивом.')
   return {
     ...session,
-    status: 'analyzing',
+    status: isReadyForInference(session) ? 'analyzing' : 'collecting',
     intermediateResults: clone(results),
     lastUpdatedAt: timestamp(),
   }

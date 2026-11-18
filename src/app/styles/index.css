@@ -166,3 +166,11 @@ button:focus-visible { outline: 2px solid var(--pink-soft); outline-offset: 4px;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+/* Intermediate recommendations use the same session data as the final result. */
+.questionnaire-live-ranking { margin: 24px 0; padding: 20px; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; }
+.questionnaire-live-ranking h3 { margin: 0 0 12px; }
+.questionnaire-live-ranking p { line-height: 1.5; }
+.live-ranking-list { padding-left: 24px; margin-bottom: 0; }
+.live-ranking-list li { padding: 10px 0 10px 4px; }
+.live-ranking-list li span { display: inline-block; width: calc(100% - 80px); vertical-align: top; padding-right: 12px; }
+.live-ranking-list li strong { display: inline-block; width: 70px; text-align: right; font-variant-numeric: tabular-nums; }

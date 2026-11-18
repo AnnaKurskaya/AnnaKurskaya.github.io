@@ -2,9 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { levelFacts } from '../src/entities/expert-system/model/knowledgeBase.js'
-import { normalizeSession, runInference, sortRanking } from '../src/entities/expert-system/model/inference.js'
+import { normalizeSession, runInference, runPartialInference, sortRanking } from '../src/entities/expert-system/model/inference.js'
 import { strategies, userParameters } from '../src/entities/expert-system/model/domain.js'
 import { createWorkingDatabase, SessionValidationError } from '../src/entities/expert-system/model/session.js'
+import { questionnaire } from '../src/features/expert-system-questionnaire/model/questions.js'
 
 function createCompleteSession({ answerOverrides = {}, factOverrides = {} } = {}) {
   const database = createWorkingDatabase()
@@ -131,4 +132,61 @@ test('ничьи разрешаются стабильным порядком st
   ])
 
   assert.deepEqual(ranking.map(({ strategyId, rank }) => [strategyId, rank]), [['alpha', 1], ['zeta', 2]])
+})
+
+test('после каждого из 20 ответов доступен полный промежуточный рейтинг, совпадающий с итоговым', () => {
+  const database = createWorkingDatabase()
+  for (const question of questionnaire) {
+    const value = question.options[0].value
+    const session = question.target.type === 'parameter'
+      ? database.setAnswer(question.target.id, value)
+      : database.setLevelFact(question.target.id, value)
+    const result = runPartialInference(session)
+    database.saveIntermediateResults(result.ranking)
+    assert.equal(result.ranking.length, 20)
+    assert.equal(result.ranking.every(({ score }) => Number.isFinite(score) && score >= 0 && score <= 100), true)
+    assert.equal(database.getSession().finalRanking.length, 0)
+  }
+  assert.deepEqual(database.getSession().intermediateResults, runInference(database.getSession()).ranking)
+})
+
+test('неизвестные параметры не подменяются ответами и не активируют правила', () => {
+  const database = createWorkingDatabase()
+  const empty = runPartialInference(database.getSession())
+  assert.equal(empty.activeRules.length, 0)
+  assert.equal(empty.ranking.every(({ score, contributions }) => score === 50 && contributions.length === 0), true)
+  const result = runPartialInference(database.setLevelFact('hasLineTargets', false))
+  assert.equal(result.activeRules.length, 0)
+  assert.equal(result.ranking.every(({ contributions }) => contributions.length === 1 && contributions[0].label === 'Линейные цели'), true)
+})
+
+test('изменение ответа очищает старые оценки, пересчёт не накапливает бонусы, сброс очищает сеанс', () => {
+  const database = createWorkingDatabase()
+  database.setAnswer('speedPreference', 1)
+  const first = runPartialInference(database.getSession())
+  database.saveIntermediateResults(first.ranking)
+  assert.equal(database.setAnswer('speedPreference', 0).intermediateResults.length, 0)
+  const revised = runPartialInference(database.getSession())
+  assert.equal(revised.activeRules.some(({ id }) => id === 'speed-priority'), false)
+  assert.notDeepEqual(first.ranking, revised.ranking)
+  assert.deepEqual(runPartialInference(database.getSession()).ranking, revised.ranking)
+  database.saveIntermediateResults(revised.ranking)
+  const reset = database.resetSession()
+  assert.deepEqual(reset.answers, {})
+  assert.deepEqual(reset.intermediateResults, [])
+  assert.deepEqual(reset.finalRanking, [])
+})
+
+test('нормализация сохраняет различия критического сценария без обрезания до 100', () => {
+  const result = runInference(createCompleteSession({
+    answerOverrides: { playerExperience: 'advanced', playStyle: 'aggressive', remainingMoves: 5, availableBoosters: 2, resourceReserve: 'low', boosterReadiness: 'ready', speedPreference: 1, patience: 0.5, extraMovesAvailable: 'none', levelDifficulty: 0.9, goalType: 'combined' },
+    factOverrides: { obstacleDensity: 0.9, closedZoneRatio: 0.7, targetCount: 20, hasLineTargets: true, hasGroupedObstacles: true, hasFrozenTiles: true, goalDistribution: 'clustered', boardSpace: 0.5 },
+  }))
+  const { lower, upper } = result.scoreBounds
+  for (const item of result.ranking) {
+    assert.ok(Math.abs(item.score - 100 * (item.baseScore + item.ruleAdjustment - lower) / (upper - lower)) < 0.02)
+    assert.ok(Math.abs(item.ruleAdjustment - item.matchedRules.reduce((sum, rule) => sum + rule.points, 0)) < 0.01)
+  }
+  assert.ok(new Set(result.ranking.slice(0, 3).map(({ score }) => score)).size > 1)
+  assert.equal(result.ranking.filter(({ score }) => score === 100).length, 0)
 })

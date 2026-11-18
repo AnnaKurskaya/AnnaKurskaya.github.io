@@ -37,5 +37,6 @@ export {
   calculateBaseScore,
   normalizeSession,
   runInference,
+  runPartialInference,
   sortRanking,
 } from './model/inference.js'

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { runInference } from '../../../entities/expert-system/model/inference.js'
+import { runInference, runPartialInference } from '../../../entities/expert-system/model/inference.js'
 import { InferenceResultPanel } from '../../expert-system-result/ui/InferenceResultPanel.jsx'
 import { questionnaire } from '../model/questions.js'
 
@@ -37,6 +37,7 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
 
   useEffect(() => {
     if (session.status === 'idle') {
+      setCurrentIndex(0)
       setIsConfirmationStep(false)
       setIsSubmitted(false)
       setInferenceResult(null)
@@ -48,7 +49,8 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
       const nextSession = currentQuestion.target.type === 'parameter'
         ? workingDatabase.setAnswer(currentQuestion.target.id, value)
         : workingDatabase.setLevelFact(currentQuestion.target.id, value)
-      onSessionChange(nextSession)
+      const result = runPartialInference(nextSession)
+      onSessionChange(workingDatabase.saveIntermediateResults(result.ranking))
       setError('')
       setIsSubmitted(false)
       setInferenceResult(null)
@@ -116,7 +118,7 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
         <div>
           <p className="detail-kicker">02 / ВОПРОСЫ</p>
           <h2 id="questionnaire-title">Профиль уровня</h2>
-          <p>Ответьте на вопросы, чтобы заполнить рабочую базу данных. После подтверждения система применит правила и рассчитает рейтинг всех стратегий.</p>
+          <p>После каждого ответа обновляется топ-5 по известным данным. После подтверждения всех ответов откроется полный рейтинг с объяснениями.</p>
         </div>
         <div className="questionnaire-counter"><strong>{answeredCount}</strong><span>/ {questionnaire.length} заполнено</span></div>
       </div>
@@ -146,6 +148,14 @@ export function QuestionnairePanel({ workingDatabase, session, onSessionChange, 
           {error && <p className="questionnaire-error" role="alert">{error}</p>}
         </div>
       )}
+
+      {!isSubmitted && <section className="questionnaire-live-ranking" aria-labelledby="live-ranking-title" aria-live="polite">
+        <h3 id="live-ranking-title">Топ-5 по текущим ответам</h3>
+        {session.intermediateResults.length ? <>
+          <p>Предварительная оценка по {answeredCount} из {questionnaire.length} ответов. Неизвестные параметры не учитываются.</p>
+          <ol className="live-ranking-list">{session.intermediateResults.slice(0, 5).map((item) => <li key={item.strategyId}><span>{item.title}</span><strong>{item.score.toFixed(2)}</strong></li>)}</ol>
+        </> : <p>Выберите первый ответ — здесь появятся пять подходящих стратегий.</p>}
+      </section>}
 
       <div className="questionnaire-actions">
         <button className="questionnaire-secondary" type="button" onClick={reset}>Начать заново</button>

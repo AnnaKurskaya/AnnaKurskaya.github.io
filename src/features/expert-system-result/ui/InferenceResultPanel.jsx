@@ -55,7 +55,7 @@ function StrategyDetails({ item }) {
         {item.matchedRules.length ? (
           <div className="result-rules-block">
             <h4>Сработавшие правила</h4>
-            <ul className="result-rule-list">{item.matchedRules.map((rule) => <li key={`${rule.ruleId}-${rule.type}`}><span className={rule.type === 'penalty' ? 'is-penalty' : 'is-bonus'}>{rule.type === 'penalty' ? '−' : '+'}{Math.round(Math.abs(rule.value) * 100)}%</span><div><strong>{rule.title}</strong><small>{rule.reason}</small></div></li>)}</ul>
+            <ul className="result-rule-list">{item.matchedRules.map((rule) => <li key={`${rule.ruleId}-${rule.type}`}><span className={rule.type === 'penalty' ? 'is-penalty' : 'is-bonus'}>{rule.points >= 0 ? '+' : '−'}{Math.abs(rule.points).toFixed(2)}</span><div><strong>{rule.title}</strong><small>{rule.reason} Вклад в исходную сумму до общей нормализации.</small></div></li>)}</ul>
           </div>
         ) : <p className="result-no-rules">Для этой стратегии отдельные правила не сработали.</p>}
       </div>
@@ -79,6 +79,7 @@ export function InferenceResultPanel({ result, questions, onEdit, onRestart }) {
       </div>
 
       <div className="result-meta"><span>Активных правил: <b>{result.activeRules.length}</b></span><span>Стратегий в рейтинге: <b>{result.ranking.length}</b></span><span>Расчёт: <b>детерминированный</b></span></div>
+      <p>Оценка = 100 × (базовый балл + вклад правил − L) / (U − L). Общие границы: L = {result.scoreBounds.lower.toFixed(2)}, U = {result.scoreBounds.upper.toFixed(2)}. Балл отражает соответствие учебной модели.</p>
 
       <section className="result-section" aria-labelledby="full-ranking-title">
         <div className="result-section-heading"><div><p className="detail-kicker">ПОЛНЫЙ РЕЙТИНГ</p><h4 id="full-ranking-title">Все стратегии</h4></div><span>Нажмите на строку, чтобы раскрыть детали</span></div>
