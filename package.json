@@ -1,23 +1,12 @@
 {
-  "name": "anna-kurskaya-projects",
+  "name": "homescapes-expert",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.1.0",
   "type": "module",
+  "description": "Учебная продукционная экспертная система Homescapes",
+  "author": "AnnaKurskaya",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "test": "node --test",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "react-router-dom": "latest",
-    "lucide-react": "latest",
-    "@tsparticles/react": "latest",
-    "@tsparticles/slim": "latest"
-  },
-  "devDependencies": {}
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/"
+  }
 }

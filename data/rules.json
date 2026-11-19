@@ -1,0 +1,1690 @@
+{
+  "rules": [
+    {
+      "id": "R01",
+      "type": "score",
+      "if": {
+        "param": "mainGoal",
+        "eq": "obstacles"
+      },
+      "then": [
+        {
+          "attr": "obstacleClearing",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Основная цель: «Убрать препятствия». Удаление препятствий: high, вес 4."
+    },
+    {
+      "id": "R02",
+      "type": "score",
+      "if": {
+        "param": "mainGoal",
+        "eq": "collection"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Основная цель: «Собрать цели». Точность: high, вес 3."
+    },
+    {
+      "id": "R03",
+      "type": "score",
+      "if": {
+        "param": "mainGoal",
+        "eq": "mixed"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Основная цель: «Решать обе задачи». Универсальность: high, вес 4."
+    },
+    {
+      "id": "R04",
+      "type": "score",
+      "if": {
+        "param": "obstacleLayout",
+        "eq": "lines"
+      },
+      "then": [
+        {
+          "attr": "category",
+          "op": "eq",
+          "value": "line",
+          "weight": 12
+        },
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Расположение целей: «Вдоль линий». Класс тактики: eq Линейная, вес 12; Точность: high, вес 2."
+    },
+    {
+      "id": "R05",
+      "type": "score",
+      "if": {
+        "param": "obstacleLayout",
+        "eq": "clusters"
+      },
+      "then": [
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "obstacleClearing",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Расположение целей: «Плотными группами». Площадь воздействия: high, вес 4; Удаление препятствий: high, вес 2."
+    },
+    {
+      "id": "R06",
+      "type": "score",
+      "if": {
+        "param": "obstacleLayout",
+        "eq": "scattered"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Расположение целей: «Отдельно, в разных местах». Работа с закрытыми зонами: high, вес 2; Точность: high, вес 4."
+    },
+    {
+      "id": "R07",
+      "type": "score",
+      "if": {
+        "param": "movesPressure",
+        "eq": "critical"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "planningSuitability",
+          "op": "high",
+          "weight": -2
+        }
+      ],
+      "explain": "Запас ходов: «Ходов критически мало». Скорость: high, вес 4; Пригодность для подготовки: high, вес -2."
+    },
+    {
+      "id": "R08",
+      "type": "score",
+      "if": {
+        "param": "movesPressure",
+        "eq": "normal"
+      },
+      "then": [
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Запас ходов: «Ходов пока достаточно». Надёжность: high, вес 3."
+    },
+    {
+      "id": "R09",
+      "type": "score",
+      "if": {
+        "param": "movesPressure",
+        "eq": "comfortable"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Запас ходов: «Есть запас для подготовки». Потенциал комбинаций: high, вес 3."
+    },
+    {
+      "id": "R10",
+      "type": "score",
+      "if": {
+        "param": "resourcePolicy",
+        "eq": "save"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "riskDependence",
+          "op": "high",
+          "weight": -1
+        }
+      ],
+      "explain": "Режим расхода: «Хочу беречь усилители». Экономия ресурсов: high, вес 4; Зависимость от удачи: high, вес -1."
+    },
+    {
+      "id": "R11",
+      "type": "score",
+      "if": {
+        "param": "resourcePolicy",
+        "eq": "balanced"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "resourceEconomy",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Режим расхода: «По необходимости». Универсальность: high, вес 2; Экономия ресурсов: high, вес 2."
+    },
+    {
+      "id": "R12",
+      "type": "score",
+      "if": {
+        "param": "resourcePolicy",
+        "eq": "spend"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Режим расхода: «Готов активно использовать». Потенциал комбинаций: high, вес 4."
+    },
+    {
+      "id": "R13",
+      "type": "score",
+      "if": {
+        "param": "experience",
+        "eq": "beginner"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Опыт игрока: «Я начинающий игрок». Простота: high, вес 4."
+    },
+    {
+      "id": "R14",
+      "type": "score",
+      "if": {
+        "param": "experience",
+        "eq": "regular"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        },
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Опыт игрока: «Играю уверенно». Простота: gte 3, вес 6; Надёжность: high, вес 2."
+    },
+    {
+      "id": "R15",
+      "type": "score",
+      "if": {
+        "param": "experience",
+        "eq": "expert"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "planningSuitability",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Опыт игрока: «Хорошо знаю сложные комбинации». Потенциал комбинаций: high, вес 3; Пригодность для подготовки: high, вес 2."
+    },
+    {
+      "id": "R16",
+      "type": "score",
+      "if": {
+        "param": "playStyle",
+        "eq": "cautious"
+      },
+      "then": [
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "riskDependence",
+          "op": "low",
+          "weight": 2
+        }
+      ],
+      "explain": "Стиль игры: «Осторожно и предсказуемо». Надёжность: high, вес 4; Зависимость от удачи: low, вес 2."
+    },
+    {
+      "id": "R17",
+      "type": "score",
+      "if": {
+        "param": "playStyle",
+        "eq": "balanced"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Стиль игры: «Сочетать осторожность и риск». Универсальность: high, вес 3."
+    },
+    {
+      "id": "R18",
+      "type": "score",
+      "if": {
+        "param": "playStyle",
+        "eq": "bold"
+      },
+      "then": [
+        {
+          "attr": "riskDependence",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Стиль игры: «Экспериментировать ради сильного эффекта». Зависимость от удачи: high, вес 2; Потенциал комбинаций: high, вес 4."
+    },
+    {
+      "id": "R19",
+      "type": "score",
+      "if": {
+        "param": "boardSpace",
+        "eq": "tight"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Свободное место: «Места мало». Работа с закрытыми зонами: high, вес 4; Точность: high, вес 2."
+    },
+    {
+      "id": "R20",
+      "type": "score",
+      "if": {
+        "param": "boardSpace",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Свободное место: «Среднее количество». Универсальность: high, вес 3."
+    },
+    {
+      "id": "R21",
+      "type": "score",
+      "if": {
+        "param": "boardSpace",
+        "eq": "open"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Свободное место: «Поле достаточно свободно». Потенциал комбинаций: high, вес 4; Площадь воздействия: high, вес 2."
+    },
+    {
+      "id": "R22",
+      "type": "score",
+      "if": {
+        "param": "closedZoneAmount",
+        "eq": "few"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "low",
+          "weight": 2
+        },
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Закрытые участки: «Почти нет». Работа с закрытыми зонами: low, вес 2; Простота: high, вес 2."
+    },
+    {
+      "id": "R23",
+      "type": "score",
+      "if": {
+        "param": "closedZoneAmount",
+        "eq": "some"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Закрытые участки: «Есть несколько». Работа с закрытыми зонами: gte 3, вес 6."
+    },
+    {
+      "id": "R24",
+      "type": "score",
+      "if": {
+        "param": "closedZoneAmount",
+        "eq": "many"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Закрытые участки: «Таких участков много». Работа с закрытыми зонами: high, вес 4."
+    },
+    {
+      "id": "R25",
+      "type": "score",
+      "if": {
+        "param": "targetCount",
+        "eq": "one"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "areaCoverage",
+          "op": "low",
+          "weight": 1
+        }
+      ],
+      "explain": "Количество целей: «Одна отдельная цель». Точность: high, вес 4; Площадь воздействия: low, вес 1."
+    },
+    {
+      "id": "R26",
+      "type": "score",
+      "if": {
+        "param": "targetCount",
+        "eq": "several"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Количество целей: «Несколько целей». Точность: high, вес 2; Площадь воздействия: high, вес 2."
+    },
+    {
+      "id": "R27",
+      "type": "score",
+      "if": {
+        "param": "targetCount",
+        "eq": "many"
+      },
+      "then": [
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Количество целей: «Много целей». Площадь воздействия: high, вес 4."
+    },
+    {
+      "id": "R28",
+      "type": "score",
+      "if": {
+        "param": "powerupSupply",
+        "eq": "none"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Готовые усилители: «Почти нет». Экономия ресурсов: high, вес 3; Простота: high, вес 2."
+    },
+    {
+      "id": "R29",
+      "type": "score",
+      "if": {
+        "param": "powerupSupply",
+        "eq": "limited"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 1
+        }
+      ],
+      "explain": "Готовые усилители: «Есть отдельные». Экономия ресурсов: high, вес 2; Потенциал комбинаций: high, вес 1."
+    },
+    {
+      "id": "R30",
+      "type": "score",
+      "if": {
+        "param": "powerupSupply",
+        "eq": "ready"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "speed",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Готовые усилители: «Есть несколько подходящих». Потенциал комбинаций: high, вес 4; Скорость: high, вес 2."
+    },
+    {
+      "id": "R31",
+      "type": "score",
+      "if": {
+        "param": "attackShape",
+        "eq": "line"
+      },
+      "then": [
+        {
+          "attr": "category",
+          "op": "eq",
+          "value": "line",
+          "weight": 14
+        }
+      ],
+      "explain": "Форма воздействия: «Линейное». Класс тактики: eq Линейная, вес 14."
+    },
+    {
+      "id": "R32",
+      "type": "score",
+      "if": {
+        "param": "attackShape",
+        "eq": "area"
+      },
+      "then": [
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Форма воздействия: «По большой области». Площадь воздействия: high, вес 4."
+    },
+    {
+      "id": "R33",
+      "type": "score",
+      "if": {
+        "param": "attackShape",
+        "eq": "point"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Форма воздействия: «Точечное». Точность: high, вес 4."
+    },
+    {
+      "id": "R34",
+      "type": "score",
+      "if": {
+        "param": "speedPriority",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "low",
+          "weight": 2
+        },
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Приоритет скорости: «Можно действовать не спеша». Скорость: low, вес 2; Надёжность: high, вес 3."
+    },
+    {
+      "id": "R35",
+      "type": "score",
+      "if": {
+        "param": "speedPriority",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Приоритет скорости: «Средний приоритет». Скорость: gte 3, вес 6."
+    },
+    {
+      "id": "R36",
+      "type": "score",
+      "if": {
+        "param": "speedPriority",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Приоритет скорости: «Нужен быстрый результат». Скорость: high, вес 4."
+    },
+    {
+      "id": "R37",
+      "type": "score",
+      "if": {
+        "param": "planningTime",
+        "eq": "short"
+      },
+      "then": [
+        {
+          "attr": "planningSuitability",
+          "op": "low",
+          "weight": 3
+        },
+        {
+          "attr": "speed",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Время на подготовку: «Почти нисколько». Пригодность для подготовки: low, вес 3; Скорость: high, вес 2."
+    },
+    {
+      "id": "R38",
+      "type": "score",
+      "if": {
+        "param": "planningTime",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "planningSuitability",
+          "op": "eq",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Время на подготовку: «Немного». Пригодность для подготовки: eq 3, вес 6."
+    },
+    {
+      "id": "R39",
+      "type": "score",
+      "if": {
+        "param": "planningTime",
+        "eq": "long"
+      },
+      "then": [
+        {
+          "attr": "planningSuitability",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Время на подготовку: «Можно подготовить сильную комбинацию». Пригодность для подготовки: high, вес 4."
+    },
+    {
+      "id": "R40",
+      "type": "score",
+      "if": {
+        "param": "boosterUse",
+        "eq": "avoid"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Готовность тратить усилители: «Предпочитаю сохранить». Экономия ресурсов: high, вес 4."
+    },
+    {
+      "id": "R41",
+      "type": "score",
+      "if": {
+        "param": "boosterUse",
+        "eq": "situational"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Готовность тратить усилители: «Только при необходимости». Экономия ресурсов: gte 3, вес 6."
+    },
+    {
+      "id": "R42",
+      "type": "score",
+      "if": {
+        "param": "boosterUse",
+        "eq": "ready"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Готовность тратить усилители: «Готов использовать». Потенциал комбинаций: high, вес 4."
+    },
+    {
+      "id": "R43",
+      "type": "score",
+      "if": {
+        "param": "resourcePriority",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "low",
+          "weight": 1
+        },
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Важность экономии: «Сейчас важнее сила воздействия». Экономия ресурсов: low, вес 1; Потенциал комбинаций: high, вес 2."
+    },
+    {
+      "id": "R44",
+      "type": "score",
+      "if": {
+        "param": "resourcePriority",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "gte",
+          "value": 3,
+          "weight": 5
+        }
+      ],
+      "explain": "Важность экономии: «Нужен баланс». Экономия ресурсов: gte 3, вес 5."
+    },
+    {
+      "id": "R45",
+      "type": "score",
+      "if": {
+        "param": "resourcePriority",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "resourceEconomy",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Важность экономии: «Экономия очень важна». Экономия ресурсов: high, вес 4."
+    },
+    {
+      "id": "R46",
+      "type": "score",
+      "if": {
+        "param": "complexityTolerance",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Допустимая сложность: «Простую». Простота: high, вес 4."
+    },
+    {
+      "id": "R47",
+      "type": "score",
+      "if": {
+        "param": "complexityTolerance",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Допустимая сложность: «Умеренно сложную». Простота: gte 3, вес 6."
+    },
+    {
+      "id": "R48",
+      "type": "score",
+      "if": {
+        "param": "complexityTolerance",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "planningSuitability",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Допустимая сложность: «Готов к сложным сочетаниям». Пригодность для подготовки: high, вес 2; Потенциал комбинаций: high, вес 3."
+    },
+    {
+      "id": "R49",
+      "type": "score",
+      "if": {
+        "param": "riskTolerance",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "riskDependence",
+          "op": "low",
+          "weight": 4
+        },
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Допустимый риск: «Нужна предсказуемость». Зависимость от удачи: low, вес 4; Надёжность: high, вес 2."
+    },
+    {
+      "id": "R50",
+      "type": "score",
+      "if": {
+        "param": "riskTolerance",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "riskDependence",
+          "op": "eq",
+          "value": 3,
+          "weight": 5
+        }
+      ],
+      "explain": "Допустимый риск: «Умеренный риск допустим». Зависимость от удачи: eq 3, вес 5."
+    },
+    {
+      "id": "R51",
+      "type": "score",
+      "if": {
+        "param": "riskTolerance",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "riskDependence",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Допустимый риск: «Готов рискнуть». Зависимость от удачи: high, вес 3."
+    },
+    {
+      "id": "R52",
+      "type": "score",
+      "if": {
+        "param": "comboPreference",
+        "eq": "single"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Сочетание усилителей: «По одному». Простота: high, вес 4."
+    },
+    {
+      "id": "R53",
+      "type": "score",
+      "if": {
+        "param": "comboPreference",
+        "eq": "pair"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Сочетание усилителей: «Соединять по два». Потенциал комбинаций: high, вес 3."
+    },
+    {
+      "id": "R54",
+      "type": "score",
+      "if": {
+        "param": "comboPreference",
+        "eq": "chain"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "planningSuitability",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Сочетание усилителей: «Готовить сильные сочетания». Потенциал комбинаций: high, вес 4; Пригодность для подготовки: high, вес 2."
+    },
+    {
+      "id": "R55",
+      "type": "score",
+      "if": {
+        "param": "colorConcentration",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 2
+        },
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 1
+        }
+      ],
+      "explain": "Скопление цвета: «Выраженного скопления нет». Универсальность: high, вес 2; Точность: high, вес 1."
+    },
+    {
+      "id": "R56",
+      "type": "score",
+      "if": {
+        "param": "colorConcentration",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "category",
+          "op": "eq",
+          "value": "color",
+          "weight": 8
+        }
+      ],
+      "explain": "Скопление цвета: «Есть заметное скопление». Класс тактики: eq По цвету, вес 8."
+    },
+    {
+      "id": "R57",
+      "type": "score",
+      "if": {
+        "param": "colorConcentration",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "category",
+          "op": "eq",
+          "value": "color",
+          "weight": 14
+        }
+      ],
+      "explain": "Скопление цвета: «Таких элементов много». Класс тактики: eq По цвету, вес 14."
+    },
+    {
+      "id": "R58",
+      "type": "score",
+      "if": {
+        "param": "cascadingInterest",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Каскады: «Лучше точный контролируемый ход». Точность: high, вес 2."
+    },
+    {
+      "id": "R59",
+      "type": "score",
+      "if": {
+        "param": "cascadingInterest",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Каскады: «Можно учитывать каскады». Площадь воздействия: high, вес 2."
+    },
+    {
+      "id": "R60",
+      "type": "score",
+      "if": {
+        "param": "cascadingInterest",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "category",
+          "op": "eq",
+          "value": "cascade",
+          "weight": 12
+        },
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Каскады: «Хочу использовать падение элементов». Класс тактики: eq Каскадная, вес 12; Площадь воздействия: high, вес 2."
+    },
+    {
+      "id": "R61",
+      "type": "score",
+      "if": {
+        "param": "precisionNeed",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Точность: «Важнее очистить область». Площадь воздействия: high, вес 3."
+    },
+    {
+      "id": "R62",
+      "type": "score",
+      "if": {
+        "param": "precisionNeed",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Точность: «Нужен баланс». Точность: gte 3, вес 6."
+    },
+    {
+      "id": "R63",
+      "type": "score",
+      "if": {
+        "param": "precisionNeed",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Точность: «Требуется высокая точность». Точность: high, вес 4."
+    },
+    {
+      "id": "R64",
+      "type": "score",
+      "if": {
+        "param": "openingPriority",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "low",
+          "weight": 2
+        }
+      ],
+      "explain": "Открытие поля: «Цели уже доступны». Работа с закрытыми зонами: low, вес 2."
+    },
+    {
+      "id": "R65",
+      "type": "score",
+      "if": {
+        "param": "openingPriority",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Открытие поля: «Иногда нужно освобождать доступ». Работа с закрытыми зонами: gte 3, вес 6."
+    },
+    {
+      "id": "R66",
+      "type": "score",
+      "if": {
+        "param": "openingPriority",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Открытие поля: «Сначала нужно открыть доступ». Работа с закрытыми зонами: high, вес 4."
+    },
+    {
+      "id": "R67",
+      "type": "score",
+      "if": {
+        "param": "retryReadiness",
+        "eq": "avoid"
+      },
+      "then": [
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "riskDependence",
+          "op": "high",
+          "weight": -2
+        }
+      ],
+      "explain": "Отношение к риску попытки: «Хочу максимально надёжный план». Надёжность: high, вес 4; Зависимость от удачи: high, вес -2."
+    },
+    {
+      "id": "R68",
+      "type": "score",
+      "if": {
+        "param": "retryReadiness",
+        "eq": "possible"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Отношение к риску попытки: «Готов к умеренному риску». Универсальность: high, вес 2."
+    },
+    {
+      "id": "R69",
+      "type": "score",
+      "if": {
+        "param": "retryReadiness",
+        "eq": "ready"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "riskDependence",
+          "op": "high",
+          "weight": 1
+        }
+      ],
+      "explain": "Отношение к риску попытки: «Допускаю экспериментальный план». Потенциал комбинаций: high, вес 3; Зависимость от удачи: high, вес 1."
+    },
+    {
+      "id": "R70",
+      "type": "score",
+      "if": {
+        "param": "moveEfficiency",
+        "eq": "low"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Эффект одного хода: «Предпочитаю простые действия». Простота: high, вес 2."
+    },
+    {
+      "id": "R71",
+      "type": "score",
+      "if": {
+        "param": "moveEfficiency",
+        "eq": "medium"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "gte",
+          "value": 3,
+          "weight": 6
+        }
+      ],
+      "explain": "Эффект одного хода: «Нужен умеренный эффект». Скорость: gte 3, вес 6."
+    },
+    {
+      "id": "R72",
+      "type": "score",
+      "if": {
+        "param": "moveEfficiency",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "areaCoverage",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Эффект одного хода: «Нужно максимальное воздействие». Скорость: high, вес 3; Площадь воздействия: high, вес 3."
+    },
+    {
+      "id": "R73",
+      "type": "score",
+      "if": {
+        "param": "targetAccess",
+        "eq": "open"
+      },
+      "then": [
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 1
+        }
+      ],
+      "explain": "Доступность целей: «Цели доступны напрямую». Точность: high, вес 3; Простота: high, вес 1."
+    },
+    {
+      "id": "R74",
+      "type": "score",
+      "if": {
+        "param": "targetAccess",
+        "eq": "partly"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Доступность целей: «Есть частичные помехи». Работа с закрытыми зонами: high, вес 2."
+    },
+    {
+      "id": "R75",
+      "type": "score",
+      "if": {
+        "param": "targetAccess",
+        "eq": "blocked"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "obstacleClearing",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Доступность целей: «Доступ сильно затруднён». Работа с закрытыми зонами: high, вес 4; Удаление препятствий: high, вес 3."
+    },
+    {
+      "id": "R76",
+      "type": "score",
+      "if": {
+        "param": "planFlexibility",
+        "eq": "fixed"
+      },
+      "then": [
+        {
+          "attr": "simplicity",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Гибкость плана: «Простая последовательная тактика». Простота: high, вес 3."
+    },
+    {
+      "id": "R77",
+      "type": "score",
+      "if": {
+        "param": "planFlexibility",
+        "eq": "adaptive"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Гибкость плана: «Менять тактику по ситуации». Универсальность: high, вес 4."
+    },
+    {
+      "id": "R78",
+      "type": "score",
+      "if": {
+        "param": "planFlexibility",
+        "eq": "mixed"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 1
+        }
+      ],
+      "explain": "Гибкость плана: «Чередовать несколько приёмов». Универсальность: high, вес 3; Потенциал комбинаций: high, вес 1."
+    },
+    {
+      "id": "R79",
+      "type": "score",
+      "if": {
+        "param": "clearDirection",
+        "eq": "bottom"
+      },
+      "then": [
+        {
+          "attr": "category",
+          "op": "eq",
+          "value": "cascade",
+          "weight": 12
+        }
+      ],
+      "explain": "Направление игры: «У нижнего края». Класс тактики: eq Каскадная, вес 12."
+    },
+    {
+      "id": "R80",
+      "type": "score",
+      "if": {
+        "param": "clearDirection",
+        "eq": "edges"
+      },
+      "then": [
+        {
+          "attr": "closedZones",
+          "op": "high",
+          "weight": 3
+        },
+        {
+          "attr": "precision",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Направление игры: «У краёв и закрытых участков». Работа с закрытыми зонами: high, вес 3; Точность: high, вес 2."
+    },
+    {
+      "id": "R81",
+      "type": "score",
+      "if": {
+        "param": "clearDirection",
+        "eq": "any"
+      },
+      "then": [
+        {
+          "attr": "universality",
+          "op": "high",
+          "weight": 3
+        }
+      ],
+      "explain": "Направление игры: «В разных частях поля». Универсальность: high, вес 3."
+    },
+    {
+      "id": "R82",
+      "type": "score",
+      "if": {
+        "param": "desiredApproach",
+        "eq": "reliable"
+      },
+      "then": [
+        {
+          "attr": "reliability",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "riskDependence",
+          "op": "low",
+          "weight": 2
+        }
+      ],
+      "explain": "Желаемый подход: «Надёжный и предсказуемый». Надёжность: high, вес 4; Зависимость от удачи: low, вес 2."
+    },
+    {
+      "id": "R83",
+      "type": "score",
+      "if": {
+        "param": "desiredApproach",
+        "eq": "fast"
+      },
+      "then": [
+        {
+          "attr": "speed",
+          "op": "high",
+          "weight": 4
+        }
+      ],
+      "explain": "Желаемый подход: «Быстрый». Скорость: high, вес 4."
+    },
+    {
+      "id": "R84",
+      "type": "score",
+      "if": {
+        "param": "desiredApproach",
+        "eq": "experimental"
+      },
+      "then": [
+        {
+          "attr": "comboPotential",
+          "op": "high",
+          "weight": 4
+        },
+        {
+          "attr": "riskDependence",
+          "op": "high",
+          "weight": 2
+        }
+      ],
+      "explain": "Желаемый подход: «С сильными экспериментальными сочетаниями». Потенциал комбинаций: high, вес 4; Зависимость от удачи: high, вес 2."
+    },
+    {
+      "id": "D01",
+      "type": "derive",
+      "if": {
+        "param": "obstacleLayout",
+        "eq": "lines"
+      },
+      "then": [
+        {
+          "param": "attackShape",
+          "value": "line"
+        }
+      ],
+      "explain": "Линейное расположение целей задаёт предпочтение линейного воздействия."
+    },
+    {
+      "id": "D02",
+      "type": "derive",
+      "if": {
+        "param": "obstacleLayout",
+        "eq": "clusters"
+      },
+      "then": [
+        {
+          "param": "attackShape",
+          "value": "area"
+        }
+      ],
+      "explain": "Для плотной группы модель выбирает воздействие по области."
+    },
+    {
+      "id": "D03",
+      "type": "derive",
+      "if": {
+        "param": "obstacleLayout",
+        "eq": "scattered"
+      },
+      "then": [
+        {
+          "param": "attackShape",
+          "value": "point"
+        }
+      ],
+      "explain": "Разрозненным целям соответствует точечное воздействие."
+    },
+    {
+      "id": "D04",
+      "type": "derive",
+      "if": {
+        "param": "movesPressure",
+        "eq": "critical"
+      },
+      "then": [
+        {
+          "param": "speedPriority",
+          "value": "high"
+        }
+      ],
+      "explain": "При критическом запасе ходов модель выводит высокий приоритет скорости."
+    },
+    {
+      "id": "D05",
+      "type": "derive",
+      "if": {
+        "param": "speedPriority",
+        "eq": "high"
+      },
+      "then": [
+        {
+          "param": "planningTime",
+          "value": "short"
+        }
+      ],
+      "explain": "Высокий приоритет скорости ограничивает время на подготовку."
+    },
+    {
+      "id": "D06",
+      "type": "derive",
+      "if": {
+        "param": "resourcePolicy",
+        "eq": "save"
+      },
+      "then": [
+        {
+          "param": "boosterUse",
+          "value": "avoid"
+        }
+      ],
+      "explain": "Выбранное сохранение ресурсов означает предпочтение не расходовать усилители."
+    },
+    {
+      "id": "D07",
+      "type": "derive",
+      "if": {
+        "param": "boosterUse",
+        "eq": "avoid"
+      },
+      "then": [
+        {
+          "param": "resourcePriority",
+          "value": "high"
+        }
+      ],
+      "explain": "Отказ от расходования усилителей повышает приоритет экономии."
+    },
+    {
+      "id": "D08",
+      "type": "derive",
+      "if": {
+        "param": "experience",
+        "eq": "beginner"
+      },
+      "then": [
+        {
+          "param": "complexityTolerance",
+          "value": "low"
+        }
+      ],
+      "explain": "Начинающему игроку модель выводит предпочтение простой тактики."
+    },
+    {
+      "id": "D09",
+      "type": "derive",
+      "if": {
+        "param": "playStyle",
+        "eq": "cautious"
+      },
+      "then": [
+        {
+          "param": "riskTolerance",
+          "value": "low"
+        }
+      ],
+      "explain": "Осторожному стилю соответствует низкая допустимость риска."
+    },
+    {
+      "id": "D10",
+      "type": "derive",
+      "if": {
+        "param": "playStyle",
+        "eq": "bold"
+      },
+      "then": [
+        {
+          "param": "riskTolerance",
+          "value": "high"
+        }
+      ],
+      "explain": "Экспериментальный стиль допускает более высокий риск."
+    }
+  ]
+}

@@ -1,0 +1,825 @@
+{
+  "note": "Учебная экспертная модель выбора тактики Homescapes. Оценки 1–5 заданы разработчиком и не являются измеренными вероятностями победы. Система рекомендует подход, а не рассчитывает конкретные ходы; доступность нужных элементов проверяет игрок.",
+  "attributes": {
+    "speed": {
+      "name": "Скорость",
+      "description": "Насколько быстро тактика воздействует на цели",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "obstacleClearing": {
+      "name": "Удаление препятствий",
+      "description": "Полезность для разрушения препятствий",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "areaCoverage": {
+      "name": "Площадь воздействия",
+      "description": "Способность воздействовать сразу на много клеток",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "closedZones": {
+      "name": "Работа с закрытыми зонами",
+      "description": "Полезность для открытия и достижения труднодоступных участков",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "precision": {
+      "name": "Точность",
+      "description": "Пригодность для отдельных и разрозненных целей",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "resourceEconomy": {
+      "name": "Экономия ресурсов",
+      "description": "Пригодность для сохранения усилителей и сложных заготовок",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "reliability": {
+      "name": "Надёжность",
+      "description": "Условная предсказуемость применения тактики",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "simplicity": {
+      "name": "Простота",
+      "description": "Доступность тактики для начинающего игрока",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "comboPotential": {
+      "name": "Потенциал комбинаций",
+      "description": "Выигрыш от сочетания нескольких усилителей",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "universality": {
+      "name": "Универсальность",
+      "description": "Применимость к разным типам задач",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "planningSuitability": {
+      "name": "Пригодность для подготовки",
+      "description": "Полезность при наличии времени на подготовку ходов",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    },
+    "riskDependence": {
+      "name": "Зависимость от удачи",
+      "description": "Насколько тактика зависит от подходящего расположения элементов",
+      "scale": "1 — низкое значение; 5 — высокое значение"
+    }
+  },
+  "factDefinitions": {
+    "category": {
+      "name": "Класс тактики",
+      "values": [
+        {
+          "value": "line",
+          "label": "Линейная"
+        },
+        {
+          "value": "area",
+          "label": "Массовая"
+        },
+        {
+          "value": "point",
+          "label": "Точечная"
+        },
+        {
+          "value": "color",
+          "label": "По цвету"
+        },
+        {
+          "value": "combo",
+          "label": "Комбинированная"
+        },
+        {
+          "value": "opening",
+          "label": "Открытие поля"
+        },
+        {
+          "value": "cascade",
+          "label": "Каскадная"
+        },
+        {
+          "value": "planning",
+          "label": "Планирование"
+        },
+        {
+          "value": "economy",
+          "label": "Экономная"
+        }
+      ]
+    },
+    "focus": {
+      "name": "Основная задача",
+      "values": [
+        {
+          "value": "obstacles",
+          "label": "Препятствия"
+        },
+        {
+          "value": "collection",
+          "label": "Сбор целей"
+        },
+        {
+          "value": "mixed",
+          "label": "Смешанная задача"
+        }
+      ]
+    },
+    "scope": {
+      "name": "Тип воздействия",
+      "values": [
+        {
+          "value": "line",
+          "label": "Линия"
+        },
+        {
+          "value": "area",
+          "label": "Область"
+        },
+        {
+          "value": "point",
+          "label": "Отдельная цель"
+        },
+        {
+          "value": "mixed",
+          "label": "Смешанный"
+        }
+      ]
+    },
+    "tempo": {
+      "name": "Темп тактики",
+      "values": [
+        {
+          "value": "fast",
+          "label": "Быстрый"
+        },
+        {
+          "value": "steady",
+          "label": "Умеренный"
+        },
+        {
+          "value": "patient",
+          "label": "С подготовкой"
+        }
+      ]
+    },
+    "resourceMode": {
+      "name": "Потребность в заготовках",
+      "values": [
+        {
+          "value": "minimal",
+          "label": "Небольшая"
+        },
+        {
+          "value": "moderate",
+          "label": "Умеренная"
+        },
+        {
+          "value": "intensive",
+          "label": "Высокая"
+        }
+      ]
+    }
+  },
+  "entities": [
+    {
+      "id": "rockets-lines",
+      "name": "Ракеты для линий",
+      "category": "line",
+      "description": "Использовать ракеты для очистки ряда или столбца с целями.",
+      "attributes": {
+        "speed": 5,
+        "obstacleClearing": 3,
+        "areaCoverage": 4,
+        "closedZones": 3,
+        "precision": 4,
+        "resourceEconomy": 4,
+        "reliability": 4,
+        "simplicity": 5,
+        "comboPotential": 3,
+        "universality": 3,
+        "planningSuitability": 2,
+        "riskDependence": 2
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "line",
+        "tempo": "fast",
+        "resourceMode": "moderate"
+      },
+      "illustration": {
+        "src": "img/strategies/rockets-lines.svg",
+        "alt": "Схема тактики: Ракеты для линий",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "bomb-groups",
+      "name": "Бомбы для групп препятствий",
+      "category": "area",
+      "description": "Направить взрывное воздействие на плотные группы препятствий.",
+      "attributes": {
+        "speed": 4,
+        "obstacleClearing": 5,
+        "areaCoverage": 5,
+        "closedZones": 3,
+        "precision": 2,
+        "resourceEconomy": 3,
+        "reliability": 4,
+        "simplicity": 4,
+        "comboPotential": 4,
+        "universality": 4,
+        "planningSuitability": 2,
+        "riskDependence": 2
+      },
+      "facts": {
+        "focus": "obstacles",
+        "scope": "area",
+        "tempo": "fast",
+        "resourceMode": "moderate"
+      },
+      "illustration": {
+        "src": "img/strategies/bomb-groups.svg",
+        "alt": "Схема тактики: Бомбы для групп препятствий",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "planes-targets",
+      "name": "Самолётики для удалённых целей",
+      "category": "point",
+      "description": "Использовать самолётики, которые преимущественно направляются к целям и блокирующим элементам.",
+      "attributes": {
+        "speed": 4,
+        "obstacleClearing": 3,
+        "areaCoverage": 2,
+        "closedZones": 5,
+        "precision": 5,
+        "resourceEconomy": 4,
+        "reliability": 4,
+        "simplicity": 4,
+        "comboPotential": 3,
+        "universality": 4,
+        "planningSuitability": 2,
+        "riskDependence": 3
+      },
+      "facts": {
+        "focus": "collection",
+        "scope": "point",
+        "tempo": "fast",
+        "resourceMode": "moderate"
+      },
+      "illustration": {
+        "src": "img/strategies/planes-targets.svg",
+        "alt": "Схема тактики: Самолётики для удалённых целей",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "rainbow-color",
+      "name": "Радужный шар для нужного цвета",
+      "category": "color",
+      "description": "Использовать радужный шар для удаления элементов выбранного цвета.",
+      "attributes": {
+        "speed": 4,
+        "obstacleClearing": 3,
+        "areaCoverage": 5,
+        "closedZones": 3,
+        "precision": 2,
+        "resourceEconomy": 2,
+        "reliability": 4,
+        "simplicity": 3,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 4,
+        "riskDependence": 3
+      },
+      "facts": {
+        "focus": "collection",
+        "scope": "area",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/rainbow-color.svg",
+        "alt": "Схема тактики: Радужный шар для нужного цвета",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "bomb-rocket",
+      "name": "Комбинация бомбы и ракеты",
+      "category": "combo",
+      "description": "Объединить бомбу и ракету для широкого воздействия по полю.",
+      "attributes": {
+        "speed": 5,
+        "obstacleClearing": 5,
+        "areaCoverage": 5,
+        "closedZones": 4,
+        "precision": 2,
+        "resourceEconomy": 2,
+        "reliability": 4,
+        "simplicity": 3,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 4,
+        "riskDependence": 3
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/bomb-rocket.svg",
+        "alt": "Схема тактики: Комбинация бомбы и ракеты",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "plane-bomb",
+      "name": "Комбинация самолётика и бомбы",
+      "category": "combo",
+      "description": "Доставить бомбу самолётиком к одному из участков поля.",
+      "attributes": {
+        "speed": 4,
+        "obstacleClearing": 5,
+        "areaCoverage": 4,
+        "closedZones": 5,
+        "precision": 4,
+        "resourceEconomy": 2,
+        "reliability": 4,
+        "simplicity": 3,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 4,
+        "riskDependence": 3
+      },
+      "facts": {
+        "focus": "obstacles",
+        "scope": "point",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/plane-bomb.svg",
+        "alt": "Схема тактики: Комбинация самолётика и бомбы",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "plane-rocket",
+      "name": "Комбинация самолётика и ракеты",
+      "category": "combo",
+      "description": "Совместить доставку самолётиком и линейное воздействие ракеты.",
+      "attributes": {
+        "speed": 4,
+        "obstacleClearing": 3,
+        "areaCoverage": 4,
+        "closedZones": 5,
+        "precision": 4,
+        "resourceEconomy": 2,
+        "reliability": 4,
+        "simplicity": 3,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 4,
+        "riskDependence": 3
+      },
+      "facts": {
+        "focus": "collection",
+        "scope": "line",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/plane-rocket.svg",
+        "alt": "Схема тактики: Комбинация самолётика и ракеты",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "rainbow-rocket",
+      "name": "Радужный шар и ракета",
+      "category": "combo",
+      "description": "Создать несколько ракет сочетанием радужного шара с ракетой.",
+      "attributes": {
+        "speed": 5,
+        "obstacleClearing": 4,
+        "areaCoverage": 5,
+        "closedZones": 4,
+        "precision": 2,
+        "resourceEconomy": 1,
+        "reliability": 4,
+        "simplicity": 2,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 5,
+        "riskDependence": 4
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/rainbow-rocket.svg",
+        "alt": "Схема тактики: Радужный шар и ракета",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "rainbow-bomb",
+      "name": "Радужный шар и бомба",
+      "category": "combo",
+      "description": "Использовать сочетание радужного шара и бомбы для массового воздействия.",
+      "attributes": {
+        "speed": 5,
+        "obstacleClearing": 5,
+        "areaCoverage": 5,
+        "closedZones": 4,
+        "precision": 1,
+        "resourceEconomy": 1,
+        "reliability": 4,
+        "simplicity": 2,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 5,
+        "riskDependence": 4
+      },
+      "facts": {
+        "focus": "obstacles",
+        "scope": "area",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/rainbow-bomb.svg",
+        "alt": "Схема тактики: Радужный шар и бомба",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "double-rainbow",
+      "name": "Два радужных шара",
+      "category": "combo",
+      "description": "При доступной комбинации объединить два радужных шара для очистки поля и одного слоя препятствий.",
+      "attributes": {
+        "speed": 3,
+        "obstacleClearing": 5,
+        "areaCoverage": 5,
+        "closedZones": 5,
+        "precision": 1,
+        "resourceEconomy": 1,
+        "reliability": 5,
+        "simplicity": 1,
+        "comboPotential": 5,
+        "universality": 5,
+        "planningSuitability": 5,
+        "riskDependence": 5
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "patient",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/double-rainbow.svg",
+        "alt": "Схема тактики: Два радужных шара",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "unlock-zones",
+      "name": "Открытие закрытых участков",
+      "category": "opening",
+      "description": "Сначала освободить доступ к участкам, где расположены цели.",
+      "attributes": {
+        "speed": 3,
+        "obstacleClearing": 5,
+        "areaCoverage": 3,
+        "closedZones": 5,
+        "precision": 4,
+        "resourceEconomy": 4,
+        "reliability": 4,
+        "simplicity": 4,
+        "comboPotential": 3,
+        "universality": 4,
+        "planningSuitability": 3,
+        "riskDependence": 2
+      },
+      "facts": {
+        "focus": "obstacles",
+        "scope": "point",
+        "tempo": "steady",
+        "resourceMode": "moderate"
+      },
+      "illustration": {
+        "src": "img/strategies/unlock-zones.svg",
+        "alt": "Схема тактики: Открытие закрытых участков",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "obstacles-first",
+      "name": "Препятствия перед сбором целей",
+      "category": "opening",
+      "description": "Убирать мешающие препятствия, затем переходить к сбору целей.",
+      "attributes": {
+        "speed": 3,
+        "obstacleClearing": 5,
+        "areaCoverage": 4,
+        "closedZones": 4,
+        "precision": 3,
+        "resourceEconomy": 4,
+        "reliability": 5,
+        "simplicity": 4,
+        "comboPotential": 3,
+        "universality": 5,
+        "planningSuitability": 3,
+        "riskDependence": 2
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "steady",
+        "resourceMode": "moderate"
+      },
+      "illustration": {
+        "src": "img/strategies/obstacles-first.svg",
+        "alt": "Схема тактики: Препятствия перед сбором целей",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "goals-first",
+      "name": "Сбор доступных целей",
+      "category": "point",
+      "description": "Сначала использовать доступные ходы, которые непосредственно выполняют цели уровня.",
+      "attributes": {
+        "speed": 4,
+        "obstacleClearing": 2,
+        "areaCoverage": 2,
+        "closedZones": 2,
+        "precision": 5,
+        "resourceEconomy": 5,
+        "reliability": 5,
+        "simplicity": 5,
+        "comboPotential": 1,
+        "universality": 3,
+        "planningSuitability": 1,
+        "riskDependence": 1
+      },
+      "facts": {
+        "focus": "collection",
+        "scope": "point",
+        "tempo": "fast",
+        "resourceMode": "minimal"
+      },
+      "illustration": {
+        "src": "img/strategies/goals-first.svg",
+        "alt": "Схема тактики: Сбор доступных целей",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "bottom-cascades",
+      "name": "Комбинации у нижнего края",
+      "category": "cascade",
+      "description": "По возможности делать полезные совпадения снизу, создавая предпосылки для каскадов.",
+      "attributes": {
+        "speed": 3,
+        "obstacleClearing": 3,
+        "areaCoverage": 4,
+        "closedZones": 2,
+        "precision": 2,
+        "resourceEconomy": 5,
+        "reliability": 3,
+        "simplicity": 4,
+        "comboPotential": 3,
+        "universality": 4,
+        "planningSuitability": 3,
+        "riskDependence": 4
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "steady",
+        "resourceMode": "minimal"
+      },
+      "illustration": {
+        "src": "img/strategies/bottom-cascades.svg",
+        "alt": "Схема тактики: Комбинации у нижнего края",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "prepare-combo",
+      "name": "Подготовка сильной комбинации",
+      "category": "planning",
+      "description": "Сохранить подходящие элементы и подготовить сочетание усилителей.",
+      "attributes": {
+        "speed": 2,
+        "obstacleClearing": 4,
+        "areaCoverage": 5,
+        "closedZones": 4,
+        "precision": 2,
+        "resourceEconomy": 3,
+        "reliability": 3,
+        "simplicity": 2,
+        "comboPotential": 5,
+        "universality": 4,
+        "planningSuitability": 5,
+        "riskDependence": 4
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "patient",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/prepare-combo.svg",
+        "alt": "Схема тактики: Подготовка сильной комбинации",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "save-resources",
+      "name": "Экономное использование усилителей",
+      "category": "economy",
+      "description": "Сохранять усилители, когда цель можно выполнить обычными полезными совпадениями.",
+      "attributes": {
+        "speed": 2,
+        "obstacleClearing": 3,
+        "areaCoverage": 2,
+        "closedZones": 2,
+        "precision": 4,
+        "resourceEconomy": 5,
+        "reliability": 5,
+        "simplicity": 5,
+        "comboPotential": 2,
+        "universality": 4,
+        "planningSuitability": 4,
+        "riskDependence": 1
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "mixed",
+        "tempo": "patient",
+        "resourceMode": "minimal"
+      },
+      "illustration": {
+        "src": "img/strategies/save-resources.svg",
+        "alt": "Схема тактики: Экономное использование усилителей",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "single-target",
+      "name": "Точечная работа с одной целью",
+      "category": "point",
+      "description": "Сосредоточить ближайшие полезные совпадения и доступные точечные воздействия на одной цели.",
+      "attributes": {
+        "speed": 3,
+        "obstacleClearing": 2,
+        "areaCoverage": 1,
+        "closedZones": 3,
+        "precision": 5,
+        "resourceEconomy": 5,
+        "reliability": 5,
+        "simplicity": 5,
+        "comboPotential": 1,
+        "universality": 3,
+        "planningSuitability": 2,
+        "riskDependence": 1
+      },
+      "facts": {
+        "focus": "collection",
+        "scope": "point",
+        "tempo": "steady",
+        "resourceMode": "minimal"
+      },
+      "illustration": {
+        "src": "img/strategies/single-target.svg",
+        "alt": "Схема тактики: Точечная работа с одной целью",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "check-next-move",
+      "name": "Проверка следующего хода",
+      "category": "planning",
+      "description": "Сравнить доступные ходы с целями и выбрать предсказуемое продолжение.",
+      "attributes": {
+        "speed": 1,
+        "obstacleClearing": 2,
+        "areaCoverage": 2,
+        "closedZones": 3,
+        "precision": 4,
+        "resourceEconomy": 5,
+        "reliability": 5,
+        "simplicity": 5,
+        "comboPotential": 2,
+        "universality": 5,
+        "planningSuitability": 5,
+        "riskDependence": 1
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "mixed",
+        "tempo": "patient",
+        "resourceMode": "minimal"
+      },
+      "illustration": {
+        "src": "img/strategies/check-next-move.svg",
+        "alt": "Схема тактики: Проверка следующего хода",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "fast-area",
+      "name": "Быстрое массовое очищение",
+      "category": "area",
+      "description": "Использовать уже доступные массовые воздействия, когда мало ходов и много целей.",
+      "attributes": {
+        "speed": 5,
+        "obstacleClearing": 4,
+        "areaCoverage": 5,
+        "closedZones": 3,
+        "precision": 1,
+        "resourceEconomy": 2,
+        "reliability": 3,
+        "simplicity": 3,
+        "comboPotential": 4,
+        "universality": 4,
+        "planningSuitability": 1,
+        "riskDependence": 4
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "area",
+        "tempo": "fast",
+        "resourceMode": "intensive"
+      },
+      "illustration": {
+        "src": "img/strategies/fast-area.svg",
+        "alt": "Схема тактики: Быстрое массовое очищение",
+        "width": 320,
+        "height": 200
+      }
+    },
+    {
+      "id": "adaptive-plan",
+      "name": "Гибкий план для смешанных целей",
+      "category": "planning",
+      "description": "Чередовать освобождение поля, сбор целей и создание усилителей по текущей ситуации.",
+      "attributes": {
+        "speed": 3,
+        "obstacleClearing": 4,
+        "areaCoverage": 4,
+        "closedZones": 4,
+        "precision": 4,
+        "resourceEconomy": 3,
+        "reliability": 4,
+        "simplicity": 2,
+        "comboPotential": 4,
+        "universality": 5,
+        "planningSuitability": 4,
+        "riskDependence": 3
+      },
+      "facts": {
+        "focus": "mixed",
+        "scope": "mixed",
+        "tempo": "steady",
+        "resourceMode": "moderate"
+      },
+      "illustration": {
+        "src": "img/strategies/adaptive-plan.svg",
+        "alt": "Схема тактики: Гибкий план для смешанных целей",
+        "width": 320,
+        "height": 200
+      }
+    }
+  ],
+  "rankingPolicy": {
+    "tieBreakAttribute": "reliability"
+  }
+}

@@ -1,15 +1,47 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#170b19" />
-    <meta name="description" content="Личная библиотека проектов Анны Курской" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <title>Anna Kurskaya</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f34">
+  <meta name="description" content="Учебная экспертная система выбора тактики Homescapes: объяснимые рекомендации, база знаний и прямой логический вывод.">
+  <title>Homescapes Expert — выбор стратегии Homescapes</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">К содержимому</a>
+  <header class="site-header">
+    <div class="category"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><strong>Homescapes<br> Expert</strong><p>Выбор стратегии</p></div></div>
+    <nav role="tablist" aria-label="Разделы системы" aria-orientation="vertical">
+      <button id="tab-consultation" role="tab" aria-selected="true" aria-controls="consultation" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 1-2Z"/></svg><span>Консультация</span></button>
+      <button id="tab-knowledge" role="tab" aria-selected="false" aria-controls="knowledge" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5c-3-2-7-2-10-1v16c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v16"/></svg><span>База знаний</span></button>
+      <button id="tab-database" role="tab" aria-selected="false" aria-controls="database" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/></svg><span>Рабочая база</span></button>
+    </nav>
+    <p class="sidebar-footer">Учебный проект по ОИС</p>
+  </header>
+  <main id="main">
+    <div id="loading" role="status">Загружаем базу знаний…</div>
+    <div id="load-error" class="error" role="alert" hidden>
+      <h1>Не удалось загрузить базу знаний</h1>
+      <p>Открытие через file:// не поддерживается. Запустите локальный сервер в папке проекта: <code>python -m http.server 8000</code>, затем откройте <a href="http://localhost:8000">http://localhost:8000</a>.</p>
+      <p>Если сервер уже запущен, проверьте доступность файлов data/entities.json, data/questions.json и data/rules.json и обновите страницу.</p>
+    </div>
+    <section id="consultation" role="tabpanel" aria-labelledby="tab-consultation"></section>
+    <section id="knowledge" role="tabpanel" aria-labelledby="tab-knowledge" hidden></section>
+    <section id="database" role="tabpanel" aria-labelledby="tab-database" hidden></section>
+  </main>
+  <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+  <noscript><p class="error">Для работы экспертной системы включите JavaScript в браузере.</p></noscript>
+  <footer class="site-footer"><span>Учебный проект · Основы интеллектуальных систем</span><span>Оригинальные SVG-схемы игрового поля</span><span>Условные экспертные оценки · Шкала 1–5</span></footer>
+  <script>
+    // Проверка протокола выполняется до импорта модулей: file:// блокирует их загрузку.
+    function showStartupError() {
+      document.getElementById('loading').hidden = true;
+      document.getElementById('load-error').hidden = false;
+    }
+    if (location.protocol === 'file:') showStartupError();
+    else import('./js/app.js').catch(showStartupError);
+  </script>
+</body>
 </html>
